@@ -67,7 +67,8 @@
     "scheme": "morrow",
     "backgroundColor": "#F2F0EA",
     "experiments": {
-      "typedRoutes": false
+      "typedRoutes": false,
+      "baseUrl": "/MORROW"
     }
   }
 }
