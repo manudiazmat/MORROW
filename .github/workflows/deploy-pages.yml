@@ -29,10 +29,22 @@ jobs:
         run: npm ci
       - name: Build web app
         run: npm run web:build
-      - name: Prepare GitHub Pages files
+      - name: Generate platform app icons
         run: |
-          touch dist/.nojekyll
-          cp dist/index.html dist/404.html
+          python3 -m pip install --quiet Pillow
+          python3 scripts/generate-pwa-icons.py
+      - name: Make MORROW installable and available offline
+        run: node scripts/prepare-pwa.mjs
+      - name: Validate PWA build
+        run: |
+          test -f dist/index.html
+          test -f dist/manifest.webmanifest
+          test -f dist/sw.js
+          test -f dist/icon-192.png
+          test -f dist/icon-512.png
+          test -f dist/apple-touch-icon.png
+          test -f dist/404.html
+          grep -q 'rel="manifest"' dist/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
