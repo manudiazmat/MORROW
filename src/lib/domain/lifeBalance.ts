@@ -2,6 +2,7 @@ import type {
   Budget,
   CalendarEvent,
   DimensionKey,
+  DietPlan,
   DimensionResult,
   FinancialGoal,
   Habit,
@@ -11,11 +12,13 @@ import type {
   PlanCategory,
   Task,
   Transaction,
+  WorkoutLog,
 } from '@/types/models';
 import { addDays, dateKey, monthKey, parseDate, startOfDay } from '../dates';
 import { occurrences } from '../recurrence';
 import { budgetStatus, monthTotals } from './finance';
 import { goalProgress } from './goals';
+import { dietAdherence, sportSessions } from './health';
 
 export const MAX_SCORE = 12;
 /** Weight of the self rating when both sources exist. Documented in the criteria screen. */
@@ -31,6 +34,8 @@ export interface BalanceInput {
   financial_goals: FinancialGoal[];
   leisure_items: LeisureItem[];
   scores: LifeBalanceScore[];
+  workout_logs: WorkoutLog[];
+  diets: DietPlan[];
   sportTarget: number;
   weekStartsOn: 0 | 1;
   now?: Date;
@@ -122,14 +127,18 @@ export function computeDimension(key: DimensionKey, input: BalanceInput): Dimens
       break;
     }
     case 'health': {
-      if (categoryUsed('sport', tasks, events, since60)) {
+      const logs = input.workout_logs.filter((l) => !l.deletedAt);
+      if (categoryUsed('sport', tasks, events, since60) || logs.some((l) => l.date >= since60)) {
         const ws = addDays(startOfDay(now), -6);
-        const sessions =
-          occurrences(events, ws, addDays(startOfDay(now), 1)).filter((o) => o.event.category === 'sport' && o.start <= now).length +
-          doneInWindow(tasks, 'sport', ws, now).done;
+        const sessions = sportSessions({ workout_logs: logs, events, tasks }, ws, addDays(startOfDay(now), 1), now);
         const target = Math.max(1, input.sportTarget);
         parts.push({ k: 'lb.basis.sport', p: { n: sessions, target }, v: clamp01(sessions / target) });
       }
+      const diet = dietAdherence(
+        input.diets.find((d) => !d.deletedAt && d.active),
+        now,
+      );
+      if (diet) parts.push({ k: 'lb.basis.diet', p: { done: diet.done, n: diet.planned }, v: diet.rate });
       break;
     }
     case 'relationships':

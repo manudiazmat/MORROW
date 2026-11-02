@@ -4,6 +4,7 @@ import type { PlanCategory, WeeklyReview } from '@/types/models';
 import { addDays, dateKey, minutesBetween, monthKey, nowISO, parseDate, prevMonthKey } from '../dates';
 import { occurrences } from '../recurrence';
 import { goalProgress } from './goals';
+import { sportSessions } from './health';
 import { computeAll } from './lifeBalance';
 
 export const CATEGORIES: PlanCategory[] = ['work', 'sport', 'learning', 'personal', 'social', 'leisure'];
@@ -18,6 +19,8 @@ export function balanceInput(s: State, now = new Date()) {
     personal_goals: live(s.personal_goals),
     financial_goals: live(s.financial_goals),
     leisure_items: live(s.leisure_items),
+    workout_logs: live(s.workout_logs),
+    diets: live(s.diets),
     scores: s.scores,
     sportTarget: s.prefs.weeklySportTarget,
     weekStartsOn: s.prefs.weekStartsOn,
@@ -36,7 +39,7 @@ export function computeReview(s: State, weekStart: string): WeeklyReview {
   const occ = occurrences(live(s.events), ws, we);
   const minutesByCategory = Object.fromEntries(CATEGORIES.map((c) => [c, 0])) as Record<PlanCategory, number>;
   for (const o of occ) if (!o.event.allDay) minutesByCategory[o.event.category] += minutesBetween(o.start, o.end);
-  const sportSessions = occ.filter((o) => o.event.category === 'sport').length + doneIn.filter((t) => t.category === 'sport').length;
+  const sportCount = sportSessions({ workout_logs: live(s.workout_logs), events: live(s.events), tasks }, ws, we);
   let income = 0;
   let expenses = 0;
   for (const t of live(s.transactions)) {
@@ -66,7 +69,7 @@ export function computeReview(s: State, weekStart: string): WeeklyReview {
     tasksDone: doneIn.length,
     tasksPending: pending.length,
     minutesByCategory,
-    sportSessions,
+    sportSessions: sportCount,
     income,
     expenses,
     goalsProgress,

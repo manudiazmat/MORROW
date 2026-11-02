@@ -24,6 +24,7 @@ export function buildExport() {
     subscriptions: s.subscriptions,
     financial_goals: s.financial_goals,
     personal_goals: s.personal_goals,
+    health: { routines: s.routines, workout_logs: s.workout_logs, recipes: s.recipes, diets: s.diets },
     life_balance: { dimensions: s.dimensions, scores: s.scores, snapshots: s.snapshots },
     weekly_reviews: s.reviews,
     assistant: { conversations: s.assistant_conversations, messages: s.messages },

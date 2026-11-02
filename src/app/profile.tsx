@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
 
 import { Wordmark } from '@/components/Logo';
-import { TabScreen } from '@/components/Screen';
+import { StackScreen } from '@/components/Screen';
 import { Button, Field, Panel, Press, Row, Segmented, Toggle, Txt } from '@/components/ui';
 import { Icon, type IconName } from '@/components/Icon';
 import { assistantConfigured } from '@/lib/assistant';
@@ -122,7 +122,7 @@ export default function Profile() {
   };
 
   return (
-    <TabScreen context="profile" title={t('pf.title')}>
+    <StackScreen title={t('pf.title')}>
       <Field
         label={t('pf.name')}
         value={name}
@@ -371,7 +371,7 @@ export default function Profile() {
           {t('brand.tagline')}
         </Txt>
       </View>
-    </TabScreen>
+    </StackScreen>
   );
 }
 

@@ -150,6 +150,50 @@ export function buildContext(s: State, now = new Date()) {
     };
   }
   if (allow('reviews')) ctx.weeklyReviews = s.reviews.slice(0, 3);
+  if (allow('health')) {
+    const recipes = live(s.recipes);
+    const diet = live(s.diets).find((d) => d.active);
+    ctx.health = {
+      routines: live(s.routines).map((r) => ({
+        name: r.name,
+        focus: r.focus,
+        days: r.days,
+        time: r.time,
+        durationMin: r.durationMin,
+        exercises: r.exercises.map((e) => `${e.name} ${e.sets}x${e.reps}${e.weightKg ? ` @${e.weightKg}kg` : ''}`),
+      })),
+      recentWorkouts: live(s.workout_logs)
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 10)
+        .map((l) => ({
+          date: l.date,
+          name: l.name,
+          durationMin: l.durationMin,
+          effort: l.effort,
+          sets: l.exercises.map((e) => `${e.name} ${e.setsDone}/${e.setsPlanned}${e.weightKg ? ` @${e.weightKg}kg` : ''}`),
+        })),
+      activeDiet: diet
+        ? {
+            name: diet.name,
+            goal: diet.goal,
+            kcalTarget: diet.kcalTarget,
+            week: Object.fromEntries(
+              Object.entries(diet.week).map(([d, meals]) => [
+                d,
+                Object.fromEntries(
+                  Object.entries(meals ?? {}).map(([m, items]) => [
+                    m,
+                    (items ?? []).map((it) => recipes.find((r) => r.id === it.recipeId)?.name ?? it.text),
+                  ]),
+                ),
+              ]),
+            ),
+            mealsMarkedEatenLast7Days: diet.log.filter((k) => k.slice(0, 10) >= dateKey(addDays(now, -6))).length,
+          }
+        : null,
+      recipes: recipes.map((r) => ({ name: r.name, meal: r.mealType, kcal: r.kcal ?? null })),
+    };
+  }
   return ctx;
 }
 

@@ -15,15 +15,15 @@ const ICONS: Record<string, IconName> = {
   index: 'home',
   plan: 'plan',
   finance: 'finance',
+  health: 'dumbbell',
   goals: 'goals',
-  profile: 'profile',
 };
 const LABELS: Record<string, string> = {
   index: 'tab.home',
   plan: 'tab.plan',
   finance: 'tab.finance',
+  health: 'tab.health',
   goals: 'tab.goals',
-  profile: 'tab.profile',
 };
 
 function TabItem({ name, active, onPress, label }: { name: string; active: boolean; onPress: () => void; label: string }) {

@@ -4,13 +4,14 @@ import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 
 import { Icon, Mark } from '@/components/Icon';
 import { LifeBalanceFlower } from '@/components/LifeBalanceFlower';
-import { TabScreen } from '@/components/Screen';
+import { ProfileButton, TabScreen } from '@/components/Screen';
 import { TaskRow } from '@/features/plan/TaskRow';
 import { Button, Dot, Empty, Panel, PanelLink, Press, Row, SectionHead, Txt } from '@/components/ui';
 import { flowerData, useLifeBalance, useLive } from '@/hooks/useData';
 import { addDays, dateKey, hhmm, monthKey, parseDate, startOfDay, startOfWeek } from '@/lib/dates';
 import { monthTotals } from '@/lib/domain/finance';
 import { goalProgress } from '@/lib/domain/goals';
+import { sportSessions } from '@/lib/domain/health';
 import { computeInsights } from '@/lib/domain/insights';
 import { capitalize, longDate, money } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -29,6 +30,7 @@ export default function Home() {
   const events = useLive('events');
   const txs = useLive('transactions');
   const goals = useLive('personal_goals');
+  const logs = useLive('workout_logs');
   const fin = useLive('financial_goals');
   const { results, overall, shortLabel } = useLifeBalance();
 
@@ -61,14 +63,7 @@ export default function Home() {
 
   // Week
   const ws = startOfWeek(now, prefs.weekStartsOn);
-  const wsKey = dateKey(ws);
-  const weekOcc = (() => {
-    const w = parseDate(wsKey);
-    return occurrences(events, w, addDays(w, 7));
-  })();
-  const sportDone =
-    weekOcc.filter((o) => o.event.category === 'sport' && o.start <= now).length +
-    tasks.filter((x) => x.category === 'sport' && x.completedAt && x.completedAt.slice(0, 10) >= dateKey(ws)).length;
+  const sportDone = sportSessions({ workout_logs: logs, events, tasks }, ws, addDays(ws, 7), now);
   const month = monthTotals(txs, monthKey(now));
   const activeGoals = goals.filter((g) => g.status === 'active');
   const avgGoal = activeGoals.length ? activeGoals.reduce((s, g) => s + goalProgress(g, fin), 0) / activeGoals.length : null;
@@ -80,6 +75,7 @@ export default function Home() {
   return (
     <TabScreen
       context="home"
+      right={<ProfileButton />}
       header={
         <View style={{ gap: 6 }}>
           <Txt v="h1">
@@ -186,7 +182,7 @@ export default function Home() {
           <WeekTile
             label={t('home.sport')}
             value={t('home.sportValue', { n: sportDone, target: prefs.weeklySportTarget })}
-            onPress={() => router.push('/plan')}
+            onPress={() => router.push('/health')}
           />
           <WeekTile
             label={t('home.balance')}

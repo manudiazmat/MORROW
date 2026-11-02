@@ -4,9 +4,10 @@ import { RefreshControl, ScrollView, View, type StyleProp, type ViewStyle } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useT } from '@/lib/i18n';
+import { useStore } from '@/store';
 import { useUI } from '@/store/ui';
 import { layout, raisedShadow, space, usePalette } from '@/theme';
-import { Mark } from './Icon';
+import { Icon, Mark } from './Icon';
 import { IconButton, Press, Txt } from './ui';
 import { useBottomSpace } from './TabBar';
 
@@ -34,6 +35,37 @@ export function AssistantButton({ context }: { context: string }) {
       }}
     >
       <Mark size={22} color={p.text} accent={p.accent} />
+    </Press>
+  );
+}
+
+/** Round button with the person's initial: opens Profile & settings. */
+export function ProfileButton() {
+  const p = usePalette();
+  const { t } = useT();
+  const name = useStore((s) => s.prefs.name);
+  return (
+    <Press
+      onPress={() => router.push('/profile')}
+      accessibilityLabel={t('pf.openProfile')}
+      hitSlop={6}
+      style={{
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: p.raised,
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: raisedShadow(p),
+      }}
+    >
+      {name ? (
+        <Txt v="section" color={p.text}>
+          {name.trim().charAt(0).toUpperCase()}
+        </Txt>
+      ) : (
+        <Icon name="profile" size={20} color={p.text} />
+      )}
     </Press>
   );
 }

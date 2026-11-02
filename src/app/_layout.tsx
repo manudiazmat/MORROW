@@ -64,7 +64,9 @@ function AuthBridge() {
 export default function RootLayout() {
   // A web host that already ships Manrope as @font-face (the single-file demo) sets this flag.
   const inlineFonts = Platform.OS === 'web' && !!(globalThis as { __MORROW_INLINE_FONTS__?: boolean }).__MORROW_INLINE_FONTS__;
-  const [fontsLoaded, fontError] = useFonts(inlineFonts ? {} : { Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold });
+  const [fontsLoaded, fontError] = useFonts(
+    inlineFonts ? {} : { Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold },
+  );
   const hydrated = useStore((s) => s.hydrated);
   const p = usePalette();
   const ready = (fontsLoaded || !!fontError) && hydrated;

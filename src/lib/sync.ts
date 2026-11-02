@@ -27,6 +27,10 @@ const TABLES: SyncTable[] = [
   'transactions',
   'budgets',
   'assistant_conversations',
+  'recipes',
+  'routines',
+  'workout_logs',
+  'diets',
 ];
 
 const snake = (s: string) => s.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);

@@ -37,7 +37,14 @@
       "expo-font",
       "expo-localization",
       "expo-secure-store",
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MORROW usa tus fotos para a\u00f1adir im\u00e1genes a tus dietas y recetas.",
+          "cameraPermission": "MORROW usa la c\u00e1mara para fotografiar tus dietas y recetas."
+        }
+      ]
     ],
     "scheme": "morrow",
     "backgroundColor": "#F2F0EA",

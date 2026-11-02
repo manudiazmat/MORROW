@@ -2,8 +2,9 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { BudgetEditor, ContributeEditor, SavingEditor, SubEditor, TxEditor } from '@/features/editors/finance';
 import { GoalEditor } from '@/features/editors/goal';
+import { DietEditor, RecipeEditor, RoutineEditor } from '@/features/editors/health';
 import { EventEditor, HabitEditor, LeisureEditor, TaskEditor } from '@/features/editors/plan';
-import type { DimensionKey, TxType } from '@/types/models';
+import type { DimensionKey, MealType, TxType } from '@/types/models';
 
 /** One modal route for every editor: /edit/<kind>?id=… (edit) or without id (create). */
 export default function Edit() {
@@ -15,6 +16,7 @@ export default function Edit() {
     type?: string;
     goalId?: string;
     dimension?: string;
+    meal?: string;
   }>();
   switch (q.kind) {
     case 'task':
@@ -37,6 +39,12 @@ export default function Edit() {
       return <SubEditor id={q.id} />;
     case 'goal':
       return <GoalEditor id={q.id} title={q.title} dimension={q.dimension as DimensionKey | undefined} />;
+    case 'routine':
+      return <RoutineEditor id={q.id} />;
+    case 'recipe':
+      return <RecipeEditor id={q.id} meal={q.meal as MealType | undefined} />;
+    case 'diet':
+      return <DietEditor id={q.id} />;
     default:
       return null;
   }

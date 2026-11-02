@@ -138,6 +138,8 @@ test('Life Balance: self rating weighs 60 %, missing sources are never invented'
     personal_goals: [],
     financial_goals: [],
     leisure_items: [],
+    workout_logs: [],
+    diets: [],
     sportTarget: 3,
     weekStartsOn: 1 as const,
     now: new Date(2026, 10, 2, 21),
@@ -154,4 +156,39 @@ test('Life Balance: self rating weighs 60 %, missing sources are never invented'
   const h = computeDimension('health', { ...empty, scores: [] });
   assert.equal(h.data, null);
   assert.equal(h.combined, null);
+});
+
+import { dietAdherence, scaleQuantity, sportSessions } from '../src/lib/domain/health';
+import type { DietPlan, WorkoutLog } from '../src/types/models';
+
+test('recipe quantities scale with servings', () => {
+  assert.equal(scaleQuantity('200 g', 2), '400 g');
+  assert.equal(scaleQuantity('1,5 cda', 2, 'es'), '3 cda');
+  assert.equal(scaleQuantity('1/2 taza', 3, 'es'), '1,5 taza');
+  assert.equal(scaleQuantity('al gusto', 3), 'al gusto');
+});
+
+test('a logged workout and its scheduled event count once', () => {
+  const gym = ev('gym', '2026-10-05T19:00', '2026-10-05T20:00', 'weekly', 'sport'); // Mondays
+  const log = { ...base, id: 'l', routineId: 'r', name: 'Gym', date: '2026-11-02', durationMin: 60, exercises: [] } as WorkoutLog;
+  const from = new Date(2026, 10, 2);
+  const to = new Date(2026, 10, 9);
+  const now = new Date(2026, 10, 2, 21);
+  assert.equal(sportSessions({ workout_logs: [], events: [gym], tasks: [] }, from, to, now), 1);
+  assert.equal(sportSessions({ workout_logs: [log], events: [gym], tasks: [] }, from, to, now), 1);
+});
+
+test('diet adherence counts only planned meals', () => {
+  const diet = {
+    ...base,
+    id: 'd',
+    name: 'd',
+    week: { '1': { lunch: [{ id: 'a', text: 'Ensalada' }], dinner: [{ id: 'b', text: 'Pescado' }] } },
+    images: [],
+    active: true,
+    log: ['2026-11-02:lunch'],
+  } as DietPlan;
+  const r = dietAdherence(diet, new Date(2026, 10, 2, 22));
+  assert.deepEqual(r, { rate: 0.5, planned: 2, done: 1 });
+  assert.equal(dietAdherence(undefined), null);
 });

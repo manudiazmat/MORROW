@@ -34,7 +34,7 @@ export interface UserPreferences {
   onboarded: boolean;
 }
 
-export type AssistantModule = 'calendar' | 'tasks' | 'goals' | 'finance' | 'habits' | 'lifeBalance' | 'reviews';
+export type AssistantModule = 'calendar' | 'tasks' | 'goals' | 'finance' | 'habits' | 'lifeBalance' | 'reviews' | 'health';
 
 export interface User {
   id: ID | null; // null in local mode
@@ -280,6 +280,94 @@ export interface AssistantConversation extends Entity {
   context?: string; // module it was opened from
 }
 
+/** Health: training */
+export type WorkoutFocus = 'strength' | 'cardio' | 'mobility' | 'mixed';
+
+export interface Exercise {
+  id: ID;
+  name: string;
+  sets: number;
+  reps: string; // "10", "8-12", "30 s"
+  weightKg?: number | null;
+  restSec?: number | null;
+  notes?: string;
+}
+
+export interface WorkoutRoutine extends Entity {
+  name: string;
+  focus: WorkoutFocus;
+  days: number[]; // weekdays 0-6
+  time?: string | null; // HH:mm, when scheduled in the calendar
+  durationMin: number;
+  exercises: Exercise[];
+  notes?: string;
+  /** weekly calendar events created for this routine */
+  eventIds: ID[];
+}
+
+export interface LoggedExercise {
+  exerciseId: ID;
+  name: string;
+  setsDone: number;
+  setsPlanned: number;
+  weightKg?: number | null;
+}
+
+export interface WorkoutLog extends Entity {
+  routineId?: ID | null;
+  name: string;
+  date: string; // YYYY-MM-DD
+  durationMin: number;
+  exercises: LoggedExercise[];
+  effort?: 1 | 2 | 3 | 4 | 5 | null; // perceived effort
+  notes?: string;
+}
+
+/** Health: nutrition */
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export interface Ingredient {
+  id: ID;
+  name: string;
+  quantity: string; // "200 g", "1 cda"
+}
+
+export interface Recipe extends Entity {
+  name: string;
+  mealType: MealType;
+  servings: number;
+  prepMin?: number | null;
+  ingredients: Ingredient[];
+  steps: string[];
+  /** per serving, only when the person enters them */
+  kcal?: number | null;
+  proteinG?: number | null;
+  carbsG?: number | null;
+  fatG?: number | null;
+  image?: string | null; // local file URI (native) or compressed data URI (web)
+  notes?: string;
+}
+
+export interface MealItem {
+  id: ID;
+  recipeId?: ID | null;
+  text?: string;
+}
+
+export type DietWeek = Record<string, Partial<Record<MealType, MealItem[]>>>; // key: weekday "0".."6"
+
+export interface DietPlan extends Entity {
+  name: string;
+  goal?: string;
+  kcalTarget?: number | null;
+  notes?: string;
+  week: DietWeek;
+  images: string[];
+  active: boolean;
+  /** meals marked as eaten: "YYYY-MM-DD:mealType" */
+  log: string[];
+}
+
 /** Sync outbox */
 export type SyncTable =
   | 'tasks'
@@ -292,7 +380,11 @@ export type SyncTable =
   | 'subscriptions'
   | 'financial_goals'
   | 'personal_goals'
-  | 'assistant_conversations';
+  | 'assistant_conversations'
+  | 'routines'
+  | 'workout_logs'
+  | 'recipes'
+  | 'diets';
 
 export interface OutboxItem {
   table: SyncTable;

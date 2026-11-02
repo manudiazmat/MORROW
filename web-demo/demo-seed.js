@@ -3,7 +3,11 @@
 (function () {
   var KEY = 'morrow-v1';
   try {
-    if (localStorage.getItem(KEY) || localStorage.getItem('morrow-demo') === 'off') return;
+    var demo = localStorage.getItem('morrow-demo');
+    var stored = localStorage.getItem(KEY);
+    if (demo === 'off') return;
+    // keep the visitor's data, unless it is still an older example set (refresh it with the new sections)
+    if (stored && !(demo === 'on' && (JSON.parse(stored).version || 1) < 2)) return;
   } catch (e) {
     return;
   }
@@ -69,9 +73,34 @@
   var keys = ['career', 'finance', 'health', 'relationships', 'growth', 'leisure', 'home', 'purpose'];
   var selfVals = [8, 7, 9, 10, 6, 5, 7, 8];
   var snap = function (back, vals) { return { month: mk(back), takenAt: mk(back) + '-28T10:00:00.000Z', values: Object.fromEntries(keys.map(function (k, i) { return [k, { self: vals[i], data: null, combined: vals[i] }]; })) }; };
+  // Health examples: the Monday gym event belongs to a routine; recipes; an active diet.
+  var ex = function (name, sets, reps, kg, rest) { return { id: id(), name: name, sets: sets, reps: reps, weightKg: kg, restSec: rest }; };
+  var routineA = E({ name: 'Fuerza · tren superior', focus: 'strength', days: [1], time: '19:00', durationMin: 60, notes: '', eventIds: [events[1].id],
+    exercises: [ex('Press banca', 4, '8-10', 50, 90), ex('Remo con barra', 4, '8-10', 45, 90), ex('Press militar', 3, '10', 25, 75), ex('Dominadas asistidas', 3, '8', null, 75)] });
+  var routineB = E({ name: 'Pierna y core', focus: 'strength', days: [4], time: null, durationMin: 50, notes: '', eventIds: [],
+    exercises: [ex('Sentadilla', 4, '8', 60, 120), ex('Peso muerto rumano', 3, '10', 50, 90), ex('Zancadas', 3, '12', 12, 60), ex('Plancha', 3, '45 s', null, 45)] });
+  var logA = function (off, kg) { return E({ routineId: routineA.id, name: routineA.name, date: dk(off), durationMin: 58, effort: 3, notes: '', exercises: routineA.exercises.map(function (e) { return { exerciseId: e.id, name: e.name, setsDone: e.sets, setsPlanned: e.sets, weightKg: e.weightKg ? e.weightKg - kg : null }; }) }); };
+  var workout_logs = [logA(-7, 2.5), logA(-14, 5)];
+  var ing = function (n, q) { return { id: id(), name: n, quantity: q }; };
+  var recipes = [
+    E({ name: 'Avena con yogur y frutos rojos', mealType: 'breakfast', servings: 1, prepMin: 5, ingredients: [ing('Copos de avena', '50 g'), ing('Yogur natural', '125 g'), ing('Frutos rojos', '80 g'), ing('Nueces', '15 g')], steps: ['Mezcla la avena con el yogur.', 'Añade los frutos rojos y las nueces por encima.'], kcal: null, proteinG: null, carbsG: null, fatG: null, image: null, notes: '' }),
+    E({ name: 'Pollo al horno con verduras', mealType: 'lunch', servings: 2, prepMin: 40, ingredients: [ing('Contramuslos de pollo', '400 g'), ing('Calabacín', '1'), ing('Pimiento rojo', '1'), ing('Cebolla', '1'), ing('Aceite de oliva', '2 cda')], steps: ['Precalienta el horno a 200 °C.', 'Corta las verduras y colócalas en la bandeja con el pollo.', 'Aliña con aceite y sal, y hornea 35 minutos.'], kcal: null, proteinG: null, carbsG: null, fatG: null, image: null, notes: '' }),
+    E({ name: 'Crema de calabaza', mealType: 'dinner', servings: 4, prepMin: 30, ingredients: [ing('Calabaza', '800 g'), ing('Puerro', '1'), ing('Patata', '1'), ing('Caldo de verduras', '700 ml')], steps: ['Sofríe el puerro.', 'Añade la calabaza y la patata troceadas y el caldo.', 'Cuece 20 minutos y tritura.'], kcal: null, proteinG: null, carbsG: null, fatG: null, image: null, notes: '' }),
+  ];
+  var mi = function (r) { return [{ id: id(), recipeId: r.id }]; };
+  var txt = function (t) { return [{ id: id(), text: t }]; };
+  var week = {};
+  for (var wd = 0; wd < 7; wd++) {
+    week[String(wd)] = { breakfast: mi(recipes[0]), lunch: wd % 2 ? mi(recipes[1]) : txt('Legumbres con verduras y una pieza de fruta'), snack: txt('Fruta y un puñado de frutos secos'), dinner: wd % 2 ? txt('Pescado a la plancha con ensalada') : mi(recipes[2]) };
+  }
+  var dietLog = [];
+  for (var dd = 1; dd < 6; dd++) { dietLog.push(dk(-dd) + ':breakfast'); dietLog.push(dk(-dd) + ':lunch'); if (dd % 2) dietLog.push(dk(-dd) + ':dinner'); }
+  dietLog.push(dk(0) + ':breakfast');
+  var diet = E({ name: 'Mediterránea equilibrada', goal: 'Comer mejor entre semana sin pasar hambre', kcalTarget: 2200, notes: '', week: week, images: [], active: true, log: dietLog });
+
   var state = {
     user: { id: null, email: null, mode: 'local' },
-    prefs: { name: '', language: 'es', currency: 'EUR', dateFormat: 'dmy', weekStartsOn: 1, units: 'metric', theme: 'system', dayStartHour: 8, dayEndHour: 22, weeklySportTarget: 3, notifications: { reminders: true, weeklyReview: true, insights: true }, assistant: { consent: false, modules: { calendar: true, tasks: true, goals: true, finance: true, habits: true, lifeBalance: true, reviews: true } }, onboarded: true },
+    prefs: { name: '', language: 'es', currency: 'EUR', dateFormat: 'dmy', weekStartsOn: 1, units: 'metric', theme: 'system', dayStartHour: 8, dayEndHour: 22, weeklySportTarget: 3, notifications: { reminders: true, weeklyReview: true, insights: true }, assistant: { consent: false, modules: { calendar: true, tasks: true, goals: true, finance: true, habits: true, lifeBalance: true, reviews: true, health: true } }, onboarded: true },
     finance: { openingBalance: 120000 },
     tasks: tasks, events: events,
     habits: [habit('Meditar 10 minutos', 'morning', 'health', 0.7), habit('Leer 20 páginas', 'evening', 'growth', 0.6), habit('Ordenar la casa', 'anytime', 'home', 0.5)],
@@ -81,13 +110,14 @@
     budgets: [E({ category: 'leisure', monthlyLimit: 15000 }), E({ category: 'food', monthlyLimit: 32000 })],
     subscriptions: [E({ name: 'Música en streaming', amount: 1299, cycle: 'monthly', nextDate: dk(25), category: 'subscriptions', active: true }), E({ name: 'Almacenamiento en la nube', amount: 299, cycle: 'monthly', nextDate: dk(12), category: 'subscriptions', active: true })],
     financial_goals: [fg], personal_goals: goals, assistant_conversations: [],
+    routines: [routineA, routineB], workout_logs: workout_logs, recipes: recipes, diets: [diet],
     dimensions: keys.map(function (k) { return { key: k, priority: 2, enabled: true, label: null }; }),
     scores: keys.map(function (k, i) { return { key: k, self: selfVals[i], ratedAt: iso }; }),
     snapshots: [snap(3, [7, 6, 7, 9, 6, 4, 6, 7]), snap(2, [7, 6, 8, 9, 5, 5, 6, 7]), snap(1, [8, 7, 8, 10, 6, 6, 6, 8])],
     reviews: [], messages: [], outbox: [], lastPulledAt: null,
   };
   try {
-    localStorage.setItem(KEY, JSON.stringify({ state: state, version: 1 }));
+    localStorage.setItem(KEY, JSON.stringify({ state: state, version: 2 }));
     localStorage.setItem('morrow-demo', 'on');
   } catch (e) {}
 })();

@@ -18,7 +18,7 @@ La app funciona entera sin servicios externos: los datos viven en el dispositivo
 
 | Capa | Dónde | Decisión |
 | --- | --- | --- |
-| Rutas | `src/app` | Expo Router: 5 pestañas, editores modales `/edit/<tipo>`, Life Balance, revisión semanal, asistente |
+| Rutas | `src/app` | Expo Router: 5 pestañas (Inicio, Plan, Salud, Finanzas, Objetivos; Perfil desde Inicio), editores modales `/edit/<tipo>`, Life Balance, revisión semanal, asistente |
 | Estado | `src/store` | Zustand persistido, **local-first**. Cada escritura entra en una *outbox* para sincronizar |
 | Dominio | `src/lib/domain` | Cálculos puros y probados: finanzas (céntimos enteros), objetivos, Life Balance, insights, revisión |
 | Diseño | `src/theme` | Tokens claro/oscuro diseñados por separado, sistema de movimiento (`motion.ts`) |
@@ -26,13 +26,21 @@ La app funciona entera sin servicios externos: los datos viven en el dispositivo
 | Sync | `src/lib/sync.ts` | Push de la outbox por `id` (UUID del dispositivo, sin duplicados) + pull incremental por `server_updated_at`; conflictos: última escritura gana |
 | IA | `src/lib/assistant.ts` + `supabase/functions/assistant` | Independiente del proveedor; las claves solo en el servidor; las acciones vuelven como **propuestas** que confirma la persona |
 
+## Salud: deporte y dieta
+
+- **Rutinas** con ejercicios (series, repeticiones, peso, descanso). Opcionalmente crean eventos semanales en la agenda.
+- **Sesión de entreno**: marcas series, se lanza el descanso, guardas el esfuerzo. Cuenta para Life Balance sin duplicar el evento del mismo día.
+- **Dietas** por día y comida, con recetas enlazadas o texto libre, comidas marcadas como hechas e **imágenes** (galería o cámara).
+- **Recetas** con foto, ingredientes que se escalan por raciones, pasos y valores nutricionales opcionales.
+- Las imágenes se guardan en el dispositivo (en web, comprimidas en el navegador). Sincronizarlas necesitará Supabase Storage.
+
 ## Configurar Supabase
 
 1. Crea un proyecto en supabase.com y copia `.env.example` a `.env` con la URL y la *anon key*.
 2. Aplica el esquema (tablas, índices, triggers y Row Level Security):
    ```bash
    npx supabase link --project-ref <tu-ref>
-   npx supabase db push            # aplica supabase/migrations/20261102000000_init.sql
+   npx supabase db push            # aplica las migraciones de supabase/migrations
    ```
 3. Despliega las funciones:
    ```bash

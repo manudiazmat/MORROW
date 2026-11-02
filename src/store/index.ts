@@ -10,6 +10,7 @@ import type {
   AssistantMessage,
   Budget,
   CalendarEvent,
+  DietPlan,
   DimensionKey,
   Entity,
   FinanceSettings,
@@ -20,8 +21,10 @@ import type {
   LifeBalanceDimension,
   LifeBalanceScore,
   LifeBalanceSnapshot,
+  MealType,
   OutboxItem,
   PersonalGoal,
+  Recipe,
   Subscription,
   SyncTable,
   Task,
@@ -29,6 +32,8 @@ import type {
   User,
   UserPreferences,
   WeeklyReview,
+  WorkoutLog,
+  WorkoutRoutine,
 } from '@/types/models';
 
 export const DIMENSIONS: DimensionKey[] = ['career', 'finance', 'health', 'relationships', 'growth', 'leisure', 'home', 'purpose'];
@@ -45,6 +50,10 @@ export interface Collections {
   financial_goals: FinancialGoal[];
   personal_goals: PersonalGoal[];
   assistant_conversations: AssistantConversation[];
+  routines: WorkoutRoutine[];
+  workout_logs: WorkoutLog[];
+  recipes: Recipe[];
+  diets: DietPlan[];
 }
 
 type ItemOf<K extends SyncTable> = Collections[K][number];
@@ -79,6 +88,8 @@ export interface State extends Collections {
   completeTask: (id: string, done: boolean) => void;
   toggleHabit: (id: string, day?: string) => void;
   contribute: (goalId: string, amount: number, date?: string) => void;
+  toggleMeal: (dietId: string, day: string, meal: MealType) => void;
+  setActiveDiet: (dietId: string) => void;
 
   setRating: (key: DimensionKey, value: number | null) => void;
   setDimension: (key: DimensionKey, patch: Partial<LifeBalanceDimension>) => void;
@@ -115,6 +126,7 @@ const defaultPrefs: UserPreferences = {
       habits: true,
       lifeBalance: true,
       reviews: true,
+      health: true,
     },
   },
   onboarded: false,
@@ -132,6 +144,10 @@ const emptyCollections = (): Collections => ({
   financial_goals: [],
   personal_goals: [],
   assistant_conversations: [],
+  routines: [],
+  workout_logs: [],
+  recipes: [],
+  diets: [],
 });
 
 const initialData = () => ({
@@ -267,6 +283,18 @@ export const useStore = create<State>()(
         });
       },
 
+      toggleMeal: (dietId, day, meal) => {
+        const d = get().diets.find((x) => x.id === dietId);
+        if (!d) return;
+        const k = `${day}:${meal}`;
+        get().update('diets', dietId, { log: d.log.includes(k) ? d.log.filter((x) => x !== k) : [...d.log, k] });
+      },
+
+      setActiveDiet: (dietId) => {
+        for (const d of get().diets)
+          if (!d.deletedAt && d.active !== (d.id === dietId)) get().update('diets', d.id, { active: d.id === dietId });
+      },
+
       setRating: (key, value) =>
         set((s) => ({
           scores: s.scores.map((sc) => (sc.key === key ? { ...sc, self: value, ratedAt: value == null ? null : nowISO() } : sc)),
@@ -294,7 +322,19 @@ export const useStore = create<State>()(
     }),
     {
       name: 'morrow-v1',
-      version: 1,
+      version: 2,
+      migrate: (persisted, version) => {
+        const st = (persisted ?? {}) as Partial<State>;
+        if (version < 2) {
+          st.routines = st.routines ?? [];
+          st.workout_logs = st.workout_logs ?? [];
+          st.recipes = st.recipes ?? [];
+          st.diets = st.diets ?? [];
+          if (st.prefs)
+            st.prefs = { ...st.prefs, assistant: { ...st.prefs.assistant, modules: { ...st.prefs.assistant.modules, health: true } } };
+        }
+        return st as State;
+      },
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (s) => {
         const { hydrated: _h, ...rest } = s;

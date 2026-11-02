@@ -4,6 +4,7 @@ import { addDays, dateKey, monthKey, prevMonthKey, startOfDay, startOfWeek } fro
 import { conflicts, freeSlots, occurrences } from '../recurrence';
 import { budgetStatus, byCategory } from './finance';
 import { delay } from './goals';
+import { sportSessions } from './health';
 
 export interface Insight {
   id: string;
@@ -32,11 +33,14 @@ export function computeInsights(s: State, now = new Date()): Insight[] {
   const weekOcc = occurrences(events, ws, we);
 
   // Sport: sessions this week vs target, and free slots left to fit them.
-  const sportUsed = events.some((e) => e.category === 'sport') || tasks.some((t) => t.category === 'sport');
+  const logs = live(s.workout_logs);
+  const sportUsed = events.some((e) => e.category === 'sport') || tasks.some((t) => t.category === 'sport') || logs.length > 0;
   if (sportUsed && s.prefs.weeklySportTarget > 0) {
+    // done so far (logs, past sport events, done tasks) + what is still planned for the rest of the week
     const planned =
-      weekOcc.filter((o) => o.event.category === 'sport').length +
-      tasks.filter((t) => t.category === 'sport' && t.due && t.due >= dateKey(ws) && t.due < dateKey(we)).length;
+      sportSessions({ workout_logs: logs, events, tasks }, ws, we, now) +
+      weekOcc.filter((o) => o.event.category === 'sport' && o.start > now).length +
+      tasks.filter((t) => t.category === 'sport' && t.status !== 'done' && t.due && t.due >= dateKey(today) && t.due < dateKey(we)).length;
     const missing = s.prefs.weeklySportTarget - planned;
     if (missing > 0) {
       let slots = 0;

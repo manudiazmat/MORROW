@@ -17,13 +17,30 @@ export function ConfirmDialog() {
   };
   return (
     <Modal transparent visible animationType="none" onRequestClose={() => done(false)}>
-      <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(120)} style={{ flex: 1, backgroundColor: p.scrim, justifyContent: 'center', padding: 24 }}>
-        <Pressable style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} onPress={() => done(false)} accessibilityLabel={c.cancelLabel} />
+      <Animated.View
+        entering={FadeIn.duration(160)}
+        exiting={FadeOut.duration(120)}
+        style={{ flex: 1, backgroundColor: p.scrim, justifyContent: 'center', padding: 24 }}
+      >
+        <Pressable
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          onPress={() => done(false)}
+          accessibilityLabel={c.cancelLabel}
+        />
         <Animated.View
           entering={ZoomIn.duration(200).withInitialValues({ transform: [{ scale: 0.95 }] })}
           accessibilityViewIsModal
           accessibilityRole="alert"
-          style={{ backgroundColor: p.ground, borderRadius: radius.panel, padding: space.xl, gap: space.l, width: '100%', maxWidth: 400, alignSelf: 'center', boxShadow: '0px 16px 40px rgba(0,0,0,0.25)' }}
+          style={{
+            backgroundColor: p.ground,
+            borderRadius: radius.panel,
+            padding: space.xl,
+            gap: space.l,
+            width: '100%',
+            maxWidth: 400,
+            alignSelf: 'center',
+            boxShadow: '0px 16px 40px rgba(0,0,0,0.25)',
+          }}
         >
           <View style={{ gap: space.s }}>
             <Txt v="title">{c.title}</Txt>
