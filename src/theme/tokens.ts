@@ -134,3 +134,60 @@ const catDark = { work: '#9AA8B5', sport: '#93B08D', learning: '#C2AB7C', person
 export function catColor(p: Palette, cat: keyof typeof catLight): string {
   return (p.name === 'dark' ? catDark : catLight)[cat];
 }
+
+/**
+ * Accent presets. Only the accent family changes (data marks, checks, toggles, petals, the logo's half);
+ * grounds, panels, text and the near-black primary stay fixed in each mode.
+ * Every pair was checked: accent ≥ 3:1 on ground and panel, check-mark ink ≥ 4.5:1 on the accent,
+ * accentInk ≥ 4.5:1 on accentSoft, petal labels ≥ 4.5:1 on the fill.
+ */
+type AccentSet = Pick<Palette, 'accent' | 'accentSoft' | 'accentInk' | 'petalFill' | 'petalFillSelf'>;
+const set = (accent: string, accentSoft: string, accentInk: string, petalFill: string, petalFillSelf: string): AccentSet => ({
+  accent,
+  accentSoft,
+  accentInk,
+  petalFill,
+  petalFillSelf,
+});
+
+export const ACCENTS: Record<string, { light: AccentSet; dark: AccentSet }> = {
+  sage: {
+    light: set('#6E7A5B', '#C5C9B8', '#2F3529', '#C5C9B8', '#D6D8CB'),
+    dark: set('#AEB69D', '#3A3F35', '#DDE2CF', '#AEB69D', '#7F8974'),
+  },
+  ocean: {
+    light: set('#3F6F7C', '#C2D3D6', '#1F3940', '#BCCFD3', '#D3DFE1'),
+    dark: set('#8EB6C1', '#2D3D41', '#D3E5EA', '#8EB6C1', '#5F7F88'),
+  },
+  blue: {
+    light: set('#45649A', '#C9D2E3', '#222F48', '#C3CDE0', '#D7DDEA'),
+    dark: set('#9DB2D9', '#2F3646', '#DBE3F3', '#9DB2D9', '#66789C'),
+  },
+  lavender: {
+    light: set('#76668F', '#D3CCDF', '#352C44', '#CEC6DC', '#DDD8E6'),
+    dark: set('#B6A8CC', '#383343', '#E7E0F1', '#B6A8CC', '#7F7393'),
+  },
+  rose: {
+    light: set('#9A5A6C', '#E3CCD2', '#47252F', '#DDC4CB', '#E7D7DB'),
+    dark: set('#D7A4B2', '#41313A', '#F3DDE3', '#D7A4B2', '#99707C'),
+  },
+  clay: {
+    light: set('#9A5E46', '#E3CDC2', '#45271B', '#DCC3B7', '#E7D6CE'),
+    dark: set('#D2A089', '#41332D', '#F2DED4', '#D2A089', '#977060'),
+  },
+  amber: {
+    light: set('#8A6A22', '#E3D6B6', '#3D2F0E', '#DCCDA6', '#E6DCC3'),
+    dark: set('#D2B26B', '#403A2B', '#F1E5C7', '#D2B26B', '#977F4A'),
+  },
+  graphite: {
+    light: set('#5B5F58', '#D2D2CC', '#2A2C28', '#CBCBC4', '#DCDCD6'),
+    dark: set('#B5B5AD', '#363834', '#E8E8E2', '#B5B5AD', '#7E7F78'),
+  },
+};
+
+export const ACCENT_ORDER = ['sage', 'ocean', 'blue', 'lavender', 'rose', 'clay', 'amber', 'graphite'] as const;
+
+export function withAccent(base: Palette, accent: string | undefined): Palette {
+  const a = ACCENTS[accent ?? 'sage'] ?? ACCENTS.sage;
+  return { ...base, ...(base.name === 'dark' ? a.dark : a.light) };
+}

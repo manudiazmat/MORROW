@@ -2,10 +2,11 @@ import { router } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
 
+import { AccentPicker } from '@/components/AccentPicker';
 import { Wordmark } from '@/components/Logo';
 import { StackScreen } from '@/components/Screen';
-import { Button, Field, Panel, Press, Row, Segmented, Toggle, Txt } from '@/components/ui';
-import { Icon, type IconName } from '@/components/Icon';
+import { Button, Check, Field, Panel, Press, Progress, Row, Segmented, Toggle, Txt } from '@/components/ui';
+import { Icon, Mark, type IconName } from '@/components/Icon';
 import { assistantConfigured } from '@/lib/assistant';
 import { confirmDestructive } from '@/lib/confirm';
 import { exportData } from '@/lib/exportData';
@@ -141,6 +142,14 @@ export default function Profile() {
             { value: 'dark', label: t('pf.theme.dark') },
           ]}
         />
+        <View style={{ gap: 2, marginTop: space.s }}>
+          <Txt v="label">{t('pf.accent')}</Txt>
+          <Txt v="meta" muted>
+            {t('pf.accentSub')}
+          </Txt>
+        </View>
+        <AccentPicker />
+        <AccentPreview />
       </Section>
 
       <Section title={t('pf.region')}>
@@ -426,5 +435,25 @@ function Stepper({
         <Txt v="title">+</Txt>
       </Press>
     </Row>
+  );
+}
+
+/** Small live sample of what the accent touches: a check, a progress bar, a toggle, the logo. */
+function AccentPreview() {
+  const p = usePalette();
+  const [on, setOn] = useState(true);
+  return (
+    <View
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={{ flexDirection: 'row', alignItems: 'center', gap: space.l, backgroundColor: p.ground, borderRadius: 16, padding: space.m }}
+    >
+      <Mark size={26} color={p.text} accent={p.accent} />
+      <View style={{ flex: 1 }}>
+        <Progress value={0.62} />
+      </View>
+      <Check done={on} label="" onPress={() => setOn((v) => !v)} />
+      <Toggle value={on} onChange={setOn} label="" />
+    </View>
   );
 }

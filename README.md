@@ -21,7 +21,7 @@ La app funciona entera sin servicios externos: los datos viven en el dispositivo
 | Rutas | `src/app` | Expo Router: 5 pestañas (Inicio, Plan, Salud, Finanzas, Objetivos; Perfil desde Inicio), editores modales `/edit/<tipo>`, Life Balance, revisión semanal, asistente |
 | Estado | `src/store` | Zustand persistido, **local-first**. Cada escritura entra en una *outbox* para sincronizar |
 | Dominio | `src/lib/domain` | Cálculos puros y probados: finanzas (céntimos enteros), objetivos, Life Balance, insights, revisión |
-| Diseño | `src/theme` | Tokens claro/oscuro diseñados por separado, sistema de movimiento (`motion.ts`) |
+| Diseño | `src/theme` | Tokens claro/oscuro diseñados por separado, 8 colores de acento con contraste comprobado (`ACCENTS`), sistema de movimiento (`motion.ts`) |
 | Componentes | `src/components` | Primitivas neumórficas, flor Life Balance (SVG + Reanimated), gráficos, sheet |
 | Sync | `src/lib/sync.ts` | Push de la outbox por `id` (UUID del dispositivo, sin duplicados) + pull incremental por `server_updated_at`; conflictos: última escritura gana |
 | IA | `src/lib/assistant.ts` + `supabase/functions/assistant` | Independiente del proveedor; las claves solo en el servidor; las acciones vuelven como **propuestas** que confirma la persona |

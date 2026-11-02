@@ -10,6 +10,7 @@ export interface Entity {
 }
 
 export type ThemePreference = 'system' | 'light' | 'dark';
+export type AccentName = 'sage' | 'ocean' | 'blue' | 'lavender' | 'rose' | 'clay' | 'amber' | 'graphite';
 export type Language = 'es' | 'en';
 export type Currency = 'EUR' | 'USD' | 'GBP' | 'MXN';
 export type DateFormat = 'dmy' | 'mdy' | 'ymd';
@@ -23,6 +24,8 @@ export interface UserPreferences {
   weekStartsOn: 0 | 1; // 0 Sunday, 1 Monday
   units: Units;
   theme: ThemePreference;
+  /** accent colour; grounds and text never change */
+  accent?: AccentName;
   dayStartHour: number; // for free-time calculation
   dayEndHour: number;
   weeklySportTarget: number;
