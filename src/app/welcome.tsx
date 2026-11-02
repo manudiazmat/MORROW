@@ -9,9 +9,9 @@ import { Wordmark } from '@/components/Logo';
 import { Button, Field, Gap, Txt } from '@/components/ui';
 import { useT } from '@/lib/i18n';
 import { useStore } from '@/store';
-import { insetShadow, layout, space, usePalette } from '@/theme';
+import { layout, raisedShadow, space, usePalette } from '@/theme';
 
-/** First run: the symbol in a soft well (from the reference), the name, and a way in. */
+/** First run: the app symbol on its raised tile (the same object as the app icon), the name, and a way in. */
 export default function Welcome() {
   const p = usePalette();
   const { t } = useT();
@@ -34,7 +34,7 @@ export default function Welcome() {
         keyboardShouldPersistTaps="handled"
       >
         <Animated.View entering={FadeInDown.duration(500).delay(80)}>
-          <Wordmark size={18} />
+          <Wordmark size={17} />
         </Animated.View>
         <View style={{ flex: 1, minHeight: 300, alignItems: 'center', justifyContent: 'center' }}>
           <Animated.View
@@ -43,16 +43,17 @@ export default function Welcome() {
               .stiffness(120)
               .withInitialValues({ transform: [{ scale: 0.92 }] })}
             style={{
-              width: 196,
-              height: 196,
-              borderRadius: 98,
-              backgroundColor: p.ground,
+              width: 168,
+              height: 168,
+              borderRadius: 44,
+              borderCurve: 'continuous',
+              backgroundColor: p.raised,
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: insetShadow(p) + `, inset 10px 12px 24px ${p.insetDark}, inset -10px -10px 22px ${p.insetLight}`,
+              boxShadow: raisedShadow(p, 2),
             }}
           >
-            <Mark size={72} color={p.text} accent={p.accent} />
+            <Mark size={84} color={p.text} />
           </Animated.View>
         </View>
         <Animated.View entering={FadeInDown.duration(480).delay(220)} style={{ gap: space.s }}>

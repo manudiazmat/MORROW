@@ -6,7 +6,7 @@ import { AccentPicker } from '@/components/AccentPicker';
 import { Wordmark } from '@/components/Logo';
 import { StackScreen } from '@/components/Screen';
 import { Button, Check, Field, Panel, Press, Progress, Row, Segmented, Toggle, Txt } from '@/components/ui';
-import { Icon, Mark, type IconName } from '@/components/Icon';
+import { Icon, type IconName } from '@/components/Icon';
 import { assistantConfigured } from '@/lib/assistant';
 import { confirmDestructive } from '@/lib/confirm';
 import { exportData } from '@/lib/exportData';
@@ -438,7 +438,7 @@ function Stepper({
   );
 }
 
-/** Small live sample of what the accent touches: a check, a progress bar, a toggle, the logo. */
+/** Small live sample of what the accent touches: a progress bar, a check and a toggle. The logo stays in ink. */
 function AccentPreview() {
   const p = usePalette();
   const [on, setOn] = useState(true);
@@ -448,7 +448,6 @@ function AccentPreview() {
       importantForAccessibility="no-hide-descendants"
       style={{ flexDirection: 'row', alignItems: 'center', gap: space.l, backgroundColor: p.ground, borderRadius: 16, padding: space.m }}
     >
-      <Mark size={26} color={p.text} accent={p.accent} />
       <View style={{ flex: 1 }}>
         <Progress value={0.62} />
       </View>

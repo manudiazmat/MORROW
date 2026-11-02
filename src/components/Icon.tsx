@@ -1,5 +1,7 @@
 import Svg, { Path } from 'react-native-svg';
 
+import { SYMBOL } from './brand';
+
 /** One line icon set, 24px grid, 1.5px stroke, round caps. Drawn for MORROW. */
 const paths: Record<string, string[]> = {
   home: ['M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z'],
@@ -102,11 +104,12 @@ export function Icon({ name, size = 20, color, stroke = 1.5 }: { name: IconName;
  * The MORROW symbol: one day split in two — today (the solid upper half) over tomorrow
  * (the lower half, still open, in ink outline). Works alone, at 16px and at app-icon size.
  */
-export function Mark({ size = 24, color, accent }: { size?: number; color: string; accent?: string }) {
+/** The app symbol: the double-arch "m" from the app icon. `size` is its width; it sits in a square box so it lines up with icons. */
+export function Mark({ size = 24, color }: { size?: number; color: string }) {
+  const { x, y, w, h, d } = SYMBOL;
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path d="M3.5 10.6a8.5 8.5 0 0 1 17 0Z" fill={accent ?? color} />
-      <Path d="M4.4 13.6h15.2a7.9 7.9 0 0 1-15.2 0Z" stroke={color} strokeWidth={1.7} strokeLinejoin="round" />
+    <Svg width={size} height={size} viewBox={`${x} ${y - (w - h) / 2} ${w} ${w}`}>
+      <Path d={d} fill={color} fillRule="evenodd" />
     </Svg>
   );
 }

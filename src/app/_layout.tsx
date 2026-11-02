@@ -1,5 +1,6 @@
 import { Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, useFonts } from '@expo-google-fonts/manrope';
-import { SplashScreen, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
@@ -18,6 +19,8 @@ import { useStore } from '@/store';
 import { usePalette } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+// The symbol on the splash dissolves into the first screen instead of cutting.
+SplashScreen.setOptions({ duration: 280, fade: true });
 
 /** Keeps this month's Life Balance snapshot current; past months stay frozen. */
 function SnapshotKeeper() {

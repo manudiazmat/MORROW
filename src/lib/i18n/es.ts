@@ -207,7 +207,7 @@ export const es = {
   'ed.recipePh': 'Tortilla de espinacas',
   'ed.dietPh': 'Dieta de definición',
   'pf.accent': 'Color de acento',
-  'pf.accentSub': 'Cambia el color de los detalles: casillas, barras, gráficos, la flor y el logo. El fondo claro u oscuro se mantiene.',
+  'pf.accentSub': 'Cambia el color de los detalles: casillas, barras, gráficos y la flor. El fondo claro u oscuro se mantiene.',
   'accent.sage': 'Salvia',
   'accent.ocean': 'Océano',
   'accent.blue': 'Azul',
@@ -389,7 +389,7 @@ export const es = {
   'fin.openingSub': 'Lo que tenías antes de tu primera operación',
   'fin.topSpend': 'En qué gastas',
   'fin.noRate': '—',
-  'fin.private': 'Tus finanzas se guardan en tu dispositivo. MORROW no se conecta a tu banco.',
+  'fin.private': 'Tus finanzas se guardan en tu dispositivo. morrow no se conecta a tu banco.',
   'fin.all': 'Todas',
 
   'txc.home': 'Hogar',
@@ -488,7 +488,7 @@ export const es = {
   'lb.basis.habits': 'Hábitos cumplidos al {pct} % (7 días)',
   'lb.crit.1': 'Cada pétalo va de 0 a 12. El pétalo exterior es el máximo; el interior, lo alcanzado.',
   'lb.crit.2':
-    'Tu valoración es lo que tú sientes. Los datos registrados salen de lo que apuntas en MORROW: tareas, eventos, hábitos, finanzas y objetivos.',
+    'Tu valoración es lo que tú sientes. Los datos registrados salen de lo que apuntas en morrow: tareas, eventos, hábitos, finanzas y objetivos.',
   'lb.crit.3': 'Si hay ambas fuentes, el resultado pondera un 60 % tu valoración y un 40 % los datos. Si solo hay una, se usa esa.',
   'lb.crit.4':
     'Un indicador solo cuenta si usas esa parte de la app. No apuntar planes sociales no significa que tus relaciones vayan mal.',
@@ -655,13 +655,13 @@ export const es = {
   'pf.finance': 'Finanzas',
 
   // auth & onboarding
-  'ob.hello': 'Hola. Soy MORROW.',
+  'ob.hello': 'Hola. Soy morrow.',
   'ob.lead': 'Un lugar tranquilo para organizar tu presente y construir tu mañana.',
   'ob.name': '¿Cómo te llamas?',
   'ob.namePh': 'Tu nombre',
   'ob.start': 'Empezar',
   'ob.account': 'Ya tengo cuenta',
-  'ob.localNote': 'Puedes usar MORROW sin cuenta. Tus datos se quedan en este dispositivo.',
+  'ob.localNote': 'Puedes usar morrow sin cuenta. Tus datos se quedan en este dispositivo.',
   'auth.title': 'Inicia sesión',
   'auth.email': 'Correo electrónico',
   'auth.password': 'Contraseña',

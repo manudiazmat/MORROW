@@ -34,7 +34,7 @@ export function AssistantButton({ context }: { context: string }) {
         boxShadow: raisedShadow(p),
       }}
     >
-      <Mark size={22} color={p.text} accent={p.accent} />
+      <Mark size={24} color={p.text} />
     </Press>
   );
 }

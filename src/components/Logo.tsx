@@ -1,15 +1,18 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
-import { font, usePalette } from '@/theme';
-import { Mark } from './Icon';
+import { usePalette } from '@/theme';
+import { WORDMARK } from './brand';
 
-/** Wordmark: MORROW in Manrope semibold, opened tracking; the symbol can stand alone. */
-export function Wordmark({ size = 20, withMark = true }: { size?: number; withMark?: boolean }) {
+/** The "morrow" wordmark. `size` is the letter height; ink follows the theme so it works on ivory and on charcoal. */
+export function Wordmark({ size = 20, color }: { size?: number; color?: string }) {
   const p = usePalette();
+  const { x, y, w, h, d } = WORDMARK;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: size * 0.45 }} accessibilityRole="header" accessibilityLabel="MORROW">
-      {withMark && <Mark size={size * 1.25} color={p.text} accent={p.accent} />}
-      <Text style={{ fontFamily: font.semibold, fontSize: size, letterSpacing: size * 0.22, color: p.text }}>MORROW</Text>
+    <View accessible accessibilityRole="header" accessibilityLabel="morrow">
+      <Svg width={(size * w) / h} height={size} viewBox={`${x} ${y} ${w} ${h}`}>
+        <Path d={d} fill={color ?? p.text} fillRule="evenodd" />
+      </Svg>
     </View>
   );
 }

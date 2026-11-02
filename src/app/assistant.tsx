@@ -36,7 +36,7 @@ function Thinking() {
   const s = useAnimatedStyle(() => ({ opacity: o.value }));
   return (
     <Animated.View style={[{ flexDirection: 'row', gap: space.s, alignItems: 'center' }, s]}>
-      <Mark size={16} color={p.muted} accent={p.accent} />
+      <Mark size={18} color={p.muted} />
       <Txt muted>{t('as.thinking')}</Txt>
     </Animated.View>
   );
@@ -285,7 +285,7 @@ export default function Assistant() {
                 <Animated.View key={m.id} entering={FadeIn.duration(260)} style={{ gap: space.m }}>
                   <Row gap={space.s} style={{ alignItems: 'flex-start' }}>
                     <View style={{ paddingTop: 2 }}>
-                      <Mark size={16} color={p.muted} accent={p.accent} />
+                      <Mark size={18} color={p.muted} />
                     </View>
                     <Txt v="bodyL" style={{ flex: 1 }} color={m.error ? p.negative : p.text}>
                       {m.text}

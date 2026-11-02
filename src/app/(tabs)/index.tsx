@@ -97,7 +97,7 @@ export default function Home() {
             style={{ flexDirection: 'row', gap: space.m, alignItems: 'flex-start', paddingHorizontal: 4 }}
           >
             <View style={{ paddingTop: 1 }}>
-              <Mark size={18} color={p.muted} accent={p.accent} />
+              <Mark size={20} color={p.muted} />
             </View>
             <Txt style={{ flex: 1 }}>
               {t(insight.k, { ...insight.p, cat: insight.p?.cat ? t(`txc.${insight.p.cat}`).toLowerCase() : '' })}

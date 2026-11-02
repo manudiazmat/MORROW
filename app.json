@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "MORROW",
+    "name": "morrow",
     "slug": "morrow",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,12 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.morrow.life"
+      "bundleIdentifier": "app.morrow.life",
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-ios-dark.png",
+        "tinted": "./assets/icon-ios-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -41,8 +46,21 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "MORROW usa tus fotos para a\u00f1adir im\u00e1genes a tus dietas y recetas.",
-          "cameraPermission": "MORROW usa la c\u00e1mara para fotografiar tus dietas y recetas."
+          "photosPermission": "morrow usa tus fotos para añadir imágenes a tus dietas y recetas.",
+          "cameraPermission": "morrow usa la cámara para fotografiar tus dietas y recetas."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#F2F0EA",
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#20211F"
+          }
         }
       ]
     ],

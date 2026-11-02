@@ -1,6 +1,6 @@
-# MORROW
+<p><img src="assets/brand/wordmark.svg" alt="morrow" width="220"></p>
 
-*Your life. Your time. Your tomorrow.* — gestor personal para iOS y Android (Expo SDK 58, React Native 0.88, TypeScript, Expo Router).
+_Your life. Your time. Your tomorrow._ — gestor personal para iOS y Android (Expo SDK 58, React Native 0.88, TypeScript, Expo Router).
 
 ## Arrancar
 
@@ -16,15 +16,15 @@ La app funciona entera sin servicios externos: los datos viven en el dispositivo
 
 ## Arquitectura
 
-| Capa | Dónde | Decisión |
-| --- | --- | --- |
-| Rutas | `src/app` | Expo Router: 5 pestañas (Inicio, Plan, Salud, Finanzas, Objetivos; Perfil desde Inicio), editores modales `/edit/<tipo>`, Life Balance, revisión semanal, asistente |
-| Estado | `src/store` | Zustand persistido, **local-first**. Cada escritura entra en una *outbox* para sincronizar |
-| Dominio | `src/lib/domain` | Cálculos puros y probados: finanzas (céntimos enteros), objetivos, Life Balance, insights, revisión |
-| Diseño | `src/theme` | Tokens claro/oscuro diseñados por separado, 8 colores de acento con contraste comprobado (`ACCENTS`), sistema de movimiento (`motion.ts`) |
-| Componentes | `src/components` | Primitivas neumórficas, flor Life Balance (SVG + Reanimated), gráficos, sheet |
-| Sync | `src/lib/sync.ts` | Push de la outbox por `id` (UUID del dispositivo, sin duplicados) + pull incremental por `server_updated_at`; conflictos: última escritura gana |
-| IA | `src/lib/assistant.ts` + `supabase/functions/assistant` | Independiente del proveedor; las claves solo en el servidor; las acciones vuelven como **propuestas** que confirma la persona |
+| Capa        | Dónde                                                   | Decisión                                                                                                                                                            |
+| ----------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rutas       | `src/app`                                               | Expo Router: 5 pestañas (Inicio, Plan, Salud, Finanzas, Objetivos; Perfil desde Inicio), editores modales `/edit/<tipo>`, Life Balance, revisión semanal, asistente |
+| Estado      | `src/store`                                             | Zustand persistido, **local-first**. Cada escritura entra en una _outbox_ para sincronizar                                                                          |
+| Dominio     | `src/lib/domain`                                        | Cálculos puros y probados: finanzas (céntimos enteros), objetivos, Life Balance, insights, revisión                                                                 |
+| Diseño      | `src/theme`                                             | Tokens claro/oscuro diseñados por separado, 8 colores de acento con contraste comprobado (`ACCENTS`), sistema de movimiento (`motion.ts`)                           |
+| Componentes | `src/components`                                        | Primitivas neumórficas, flor Life Balance (SVG + Reanimated), gráficos, sheet                                                                                       |
+| Sync        | `src/lib/sync.ts`                                       | Push de la outbox por `id` (UUID del dispositivo, sin duplicados) + pull incremental por `server_updated_at`; conflictos: última escritura gana                     |
+| IA          | `src/lib/assistant.ts` + `supabase/functions/assistant` | Independiente del proveedor; las claves solo en el servidor; las acciones vuelven como **propuestas** que confirma la persona                                       |
 
 ## Salud: deporte y dieta
 
@@ -36,7 +36,7 @@ La app funciona entera sin servicios externos: los datos viven en el dispositivo
 
 ## Configurar Supabase
 
-1. Crea un proyecto en supabase.com y copia `.env.example` a `.env` con la URL y la *anon key*.
+1. Crea un proyecto en supabase.com y copia `.env.example` a `.env` con la URL y la _anon key_.
 2. Aplica el esquema (tablas, índices, triggers y Row Level Security):
    ```bash
    npx supabase link --project-ref <tu-ref>
@@ -63,7 +63,7 @@ Después pon `EXPO_PUBLIC_ASSISTANT_ENABLED=true` y `EXPO_PUBLIC_ASSISTANT_PROVI
 npm run demo        # genera web-demo/morrow-demo.html (app + fuentes + datos de ejemplo)
 ```
 
-Ábrelo con cualquier servidor estático. Arranca con datos de ejemplo claramente marcados y un botón *Empezar de cero*. La demo es solo para probar: en la app real no hay datos de ejemplo.
+Ábrelo con cualquier servidor estático. Arranca con datos de ejemplo claramente marcados y un botón _Empezar de cero_. La demo es solo para probar: en la app real no hay datos de ejemplo.
 
 ## Subir a GitHub
 
@@ -73,6 +73,18 @@ git push -u origin main
 ```
 
 El flujo `.github/workflows/ci.yml` comprueba tipos, lint, pruebas y la build web en cada push y pull request.
+
+## Marca
+
+| Pieza                              | Archivo                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| Logotipo (vector)                  | `assets/brand/wordmark.svg` · en la app: `Wordmark` (`src/components/Logo.tsx`) |
+| Símbolo «m» (vector)               | `assets/brand/symbol.svg` · en la app: `Mark` (`src/components/Icon.tsx`)       |
+| Icono iOS (claro, oscuro, tintado) | `assets/icon.png`, `assets/icon-ios-dark.png`, `assets/icon-ios-tinted.png`     |
+| Icono adaptativo Android           | `assets/android-icon-{foreground,background,monochrome}.png`                    |
+| Pantalla de carga (clara y oscura) | `assets/splash-icon.png`, `assets/splash-icon-dark.png`                         |
+
+Los vectores salen del arte original; en la app el logo y el símbolo usan siempre el color de texto del tema (nunca el acento).
 
 ## Builds nativas
 

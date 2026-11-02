@@ -22,7 +22,7 @@ const fonts = ['400Regular', '500Medium', '600SemiBold', '700Bold'].map((w) => {
 });
 const seed = fs.readFileSync(path.join(root, 'web-demo/demo-seed.js'), 'utf8');
 
-const html = `<title>MORROW</title>
+const html = `<title>morrow</title>
 <meta name="description" content="Gestor personal: hoy, plan, finanzas, objetivos y Life Balance.">
 <style>
 /* One-screen app host. Tokens mirror the app's grounds (Ivory / graphite). */
