@@ -19,6 +19,9 @@ interface UIState {
   assistantContext: string | null;
   setAssistantContext: (c: string | null) => void;
   sync: { status: 'idle' | 'syncing' | 'error' | 'offline'; lastSyncAt: string | null; message?: string };
+  confirm: { title: string; body: string; confirmLabel: string; cancelLabel: string; resolve: (ok: boolean) => void } | null;
+  askConfirm: (c: NonNullable<UIState['confirm']>) => void;
+  closeConfirm: () => void;
   setSync: (s: Partial<UIState['sync']>) => void;
 }
 
@@ -35,4 +38,7 @@ export const useUI = create<UIState>((set) => ({
   setAssistantContext: (assistantContext) => set({ assistantContext }),
   sync: { status: 'idle', lastSyncAt: null },
   setSync: (p) => set((s) => ({ sync: { ...s.sync, ...p } })),
+  confirm: null,
+  askConfirm: (confirm) => set({ confirm }),
+  closeConfirm: () => set({ confirm: null }),
 }));

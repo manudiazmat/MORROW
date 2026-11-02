@@ -47,7 +47,11 @@
     "typecheck": "tsc --noEmit",
     "web:build": "expo export --platform web",
     "test": "node --import tsx --test tests/*.test.ts",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "demo": "expo export --platform web && node web-demo/build.mjs"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
 }

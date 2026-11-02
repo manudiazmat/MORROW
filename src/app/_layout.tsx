@@ -3,10 +3,11 @@ import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { QuickAdd } from '@/features/QuickAdd';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Toast } from '@/components/Toast';
 import { useLifeBalance } from '@/hooks/useData';
 import { monthKey, nowISO } from '@/lib/dates';
@@ -61,11 +62,20 @@ function AuthBridge() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({ Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold });
+  // A web host that already ships Manrope as @font-face (the single-file demo) sets this flag.
+  const inlineFonts = Platform.OS === 'web' && !!(globalThis as { __MORROW_INLINE_FONTS__?: boolean }).__MORROW_INLINE_FONTS__;
+  const [fontsLoaded, fontError] = useFonts(inlineFonts ? {} : { Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold });
   const hydrated = useStore((s) => s.hydrated);
   const p = usePalette();
   const ready = (fontsLoaded || !!fontError) && hydrated;
 
+  // never stay on a blank screen if storage can't answer
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!useStore.getState().hydrated) useStore.setState({ hydrated: true });
+    }, 1500);
+    return () => clearTimeout(id);
+  }, []);
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(p.ground).catch(() => {});
   }, [p.ground]);
@@ -95,6 +105,7 @@ export default function RootLayout() {
       </Stack>
       <QuickAdd />
       <Toast />
+      <ConfirmDialog />
       <SnapshotKeeper />
       <AuthBridge />
     </SafeAreaProvider>

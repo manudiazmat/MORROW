@@ -300,7 +300,8 @@ export const useStore = create<State>()(
         const { hydrated: _h, ...rest } = s;
         return Object.fromEntries(Object.entries(rest).filter(([, v]) => typeof v !== 'function')) as Partial<State>;
       },
-      onRehydrateStorage: () => (state) => state?.setHydrated(),
+      // mark hydrated even if storage failed (private mode, blocked site data): the app still opens
+      onRehydrateStorage: () => () => useStore.setState({ hydrated: true }),
     },
   ),
 );

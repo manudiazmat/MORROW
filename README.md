@@ -49,6 +49,23 @@ npx supabase secrets set AI_PROVIDER=anthropic AI_API_KEY=<tu clave> AI_MODEL=cl
 
 Después pon `EXPO_PUBLIC_ASSISTANT_ENABLED=true` y `EXPO_PUBLIC_ASSISTANT_PROVIDER_NAME=Anthropic` en `.env` y reinicia Expo. El asistente exige sesión iniciada y consentimiento explícito; solo envía los módulos permitidos en Perfil.
 
+## Demo web en un solo archivo
+
+```bash
+npm run demo        # genera web-demo/morrow-demo.html (app + fuentes + datos de ejemplo)
+```
+
+Ábrelo con cualquier servidor estático. Arranca con datos de ejemplo claramente marcados y un botón *Empezar de cero*. La demo es solo para probar: en la app real no hay datos de ejemplo.
+
+## Subir a GitHub
+
+```bash
+git remote add origin git@github.com:<tu-usuario>/morrow.git
+git push -u origin main
+```
+
+El flujo `.github/workflows/ci.yml` comprueba tipos, lint, pruebas y la build web en cada push y pull request.
+
 ## Builds nativas
 
 Expo Go cubre todo lo usado. Para publicar: `npx eas-cli@latest build -p ios|android`.
