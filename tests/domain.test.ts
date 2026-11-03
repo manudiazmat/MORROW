@@ -192,3 +192,83 @@ test('diet adherence counts only planned meals', () => {
   assert.deepEqual(r, { rate: 0.5, planned: 2, done: 1 });
   assert.equal(dietAdherence(undefined), null);
 });
+
+/* ------------------------------------------------------------- Rewards */
+
+import { allocate, bonusDays, dailyPace, etaDays, expectedEntries, reconcile, wallet } from '../src/lib/domain/rewards';
+import type { Habit, Reward, RewardEntry, RewardSettings, Task } from '../src/types/models';
+
+const rwSettings: RewardSettings = {
+  since: '2026-11-02',
+  values: { habit: 50, task: 100, taskHigh: 200, workout: 300, meal: 25, review: 300, bonus: 150 },
+};
+const habit = (id: string, log: string[], value?: number): Habit =>
+  ({ ...base, id, title: id, slot: 'morning', dimension: 'home', days: [0, 1, 2, 3, 4, 5, 6], log, value }) as Habit;
+const entry = (key: string, amount: number, date: string, id = key, createdAt = base.createdAt): RewardEntry =>
+  ({ ...base, id, key, amount, date, createdAt, source: amount < 0 ? 'redeem' : 'habit', label: '' }) as RewardEntry;
+const reward = (id: string, price: number, order: number): Reward => ({ ...base, id, name: id, price, order, status: 'active' }) as Reward;
+
+test('rewards: only what was done since the start counts, with each habit’s own value', () => {
+  const input = {
+    habits: [
+      habit('bed', ['2026-11-01', '2026-11-02', '2026-11-03']),
+      habit('focus', ['2026-11-03'], 200),
+      habit('off', ['2026-11-03'], 0),
+    ],
+    tasks: [
+      { ...base, id: 't1', title: 'x', status: 'done', priority: 1, completedAt: '2026-11-03T10:00:00', subtasks: [] } as unknown as Task,
+      { ...base, id: 't2', title: 'y', status: 'done', priority: 2, completedAt: '2026-10-20T10:00:00', subtasks: [] } as unknown as Task,
+      { ...base, id: 't3', title: 'z', status: 'todo', priority: 2, completedAt: null, subtasks: [] } as unknown as Task,
+    ],
+    workout_logs: [],
+    diets: [],
+    reviews: [],
+  };
+  const exp = expectedEntries(input, rwSettings, '2026-11-03');
+  const keys = exp.map((e) => e.key).sort();
+  assert.deepEqual(keys, ['bonus:2026-11-03', 'habit:bed:2026-11-02', 'habit:bed:2026-11-03', 'habit:focus:2026-11-03', 'task:t1']);
+  assert.equal(exp.find((e) => e.key === 'task:t1')?.amount, 200);
+  assert.equal(exp.find((e) => e.key === 'habit:focus:2026-11-03')?.amount, 200);
+  assert.deepEqual(expectedEntries(input, { ...rwSettings, since: null }, '2026-11-03'), []);
+});
+
+test('rewards: the full-day bonus needs every planned habit (and at least three)', () => {
+  const hs = [habit('a', ['2026-11-03']), habit('b', ['2026-11-03']), habit('c', ['2026-11-03'])];
+  assert.deepEqual(bonusDays(hs, '2026-11-02', '2026-11-03'), ['2026-11-03']);
+  assert.deepEqual(bonusDays(hs.slice(0, 2), '2026-11-02', '2026-11-03'), []);
+  assert.deepEqual(bonusDays([...hs, habit('d', [])], '2026-11-02', '2026-11-03'), []);
+});
+
+test('rewards: reconcile keeps earned amounts, removes undone ones and duplicates, never touches redemptions', () => {
+  const entries = [
+    entry('habit:a:2026-11-03', 40, '2026-11-03'),
+    entry('habit:b:2026-11-03', 50, '2026-11-03', 'b1', '2026-11-03T08:00:00.000Z'),
+    entry('habit:b:2026-11-03', 50, '2026-11-03', 'b2', '2026-11-03T09:00:00.000Z'),
+    entry('task:gone', 100, '2026-11-03'),
+    entry('redeem:r1', -500, '2026-11-03'),
+  ];
+  const expected = [
+    { key: 'habit:a:2026-11-03', source: 'habit' as const, date: '2026-11-03', amount: 50, label: '' },
+    { key: 'habit:b:2026-11-03', source: 'habit' as const, date: '2026-11-03', amount: 50, label: '' },
+    { key: 'habit:c:2026-11-03', source: 'habit' as const, date: '2026-11-03', amount: 50, label: '' },
+  ];
+  const { create, remove } = reconcile(entries, expected);
+  assert.deepEqual(
+    create.map((e) => e.key),
+    ['habit:c:2026-11-03'],
+  );
+  assert.deepEqual(remove.sort(), ['b2', 'task:gone']);
+});
+
+test('rewards: credit fills the queue in order; pace and ETA', () => {
+  const w = wallet([entry('a', 3000, '2026-11-03'), entry('b', 2000, '2026-11-02'), entry('redeem:x', -1000, '2026-11-03')]);
+  assert.deepEqual(w, { earned: 5000, spent: 1000, balance: 4000 });
+  const alloc = allocate([reward('second', 5000, 2), reward('first', 3000, 1)], w.balance);
+  assert.deepEqual(alloc.get('first'), { saved: 3000, remaining: 0, progress: 1, funded: true });
+  assert.equal(alloc.get('second')?.saved, 1000);
+  assert.equal(alloc.get('second')?.remaining, 4000);
+  // two days since start, 5000 earned → 2500/day
+  assert.equal(dailyPace([entry('a', 3000, '2026-11-03'), entry('b', 2000, '2026-11-02')], '2026-11-02', '2026-11-03'), 2500);
+  assert.equal(etaDays(4000, 2500), 2);
+  assert.equal(etaDays(4000, 0), null);
+});

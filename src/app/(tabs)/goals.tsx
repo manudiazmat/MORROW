@@ -1,16 +1,46 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
+import { View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { TabScreen } from '@/components/Screen';
 import { Button, Empty, Panel, Segmented } from '@/components/ui';
 import { GoalCard } from '@/features/goals/GoalCard';
+import { RewardsView } from '@/features/rewards/RewardsView';
 import { useLive } from '@/hooks/useData';
 import { useT } from '@/lib/i18n';
 import { space } from '@/theme';
 import type { GoalHorizon } from '@/types/models';
 
+type View_ = 'goals' | 'rewards';
+
 export default function Goals() {
+  const { t } = useT();
+  const params = useLocalSearchParams<{ view?: View_ }>();
+  const [view, setView] = useState<View_>(params.view ?? 'goals');
+  const [lastParam, setLastParam] = useState(params.view);
+  if (params.view !== lastParam) {
+    setLastParam(params.view);
+    if (params.view) setView(params.view);
+  }
+  return (
+    <TabScreen context="goals" title={view === 'rewards' ? t('goals.viewRewards') : t('goals.title')}>
+      <Segmented
+        value={view}
+        onChange={setView}
+        options={[
+          { value: 'goals', label: t('goals.viewGoals') },
+          { value: 'rewards', label: t('goals.viewRewards') },
+        ]}
+      />
+      <Animated.View key={view} entering={FadeIn.duration(200)}>
+        {view === 'goals' ? <GoalsList /> : <RewardsView />}
+      </Animated.View>
+    </TabScreen>
+  );
+}
+
+function GoalsList() {
   const { t } = useT();
   const goals = useLive('personal_goals');
   const [h, setH] = useState<GoalHorizon>('short');
@@ -19,7 +49,7 @@ export default function Goals() {
     .sort((a, b) => (a.status === 'done' ? 1 : 0) - (b.status === 'done' ? 1 : 0) || a.priority - b.priority);
   const count = (x: GoalHorizon) => goals.filter((g) => g.horizon === x && g.status !== 'done').length;
   return (
-    <TabScreen context="goals" title={t('goals.title')}>
+    <View style={{ gap: space.l }}>
       <Segmented
         small
         value={h}
@@ -48,6 +78,6 @@ export default function Goals() {
           style={{ alignSelf: 'flex-start' }}
         />
       )}
-    </TabScreen>
+    </View>
   );
 }

@@ -4,6 +4,7 @@ import { BudgetEditor, ContributeEditor, SavingEditor, SubEditor, TxEditor } fro
 import { GoalEditor } from '@/features/editors/goal';
 import { DietEditor, RecipeEditor, RoutineEditor } from '@/features/editors/health';
 import { EventEditor, HabitEditor, LeisureEditor, TaskEditor } from '@/features/editors/plan';
+import { RewardEditor } from '@/features/editors/reward';
 import type { DimensionKey, MealType, TxType } from '@/types/models';
 
 /** One modal route for every editor: /edit/<kind>?id=… (edit) or without id (create). */
@@ -45,6 +46,8 @@ export default function Edit() {
       return <RecipeEditor id={q.id} meal={q.meal as MealType | undefined} />;
     case 'diet':
       return <DietEditor id={q.id} />;
+    case 'reward':
+      return <RewardEditor id={q.id} />;
     default:
       return null;
   }

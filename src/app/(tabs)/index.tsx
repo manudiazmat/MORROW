@@ -6,6 +6,7 @@ import { Icon, Mark } from '@/components/Icon';
 import { LifeBalanceFlower } from '@/components/LifeBalanceFlower';
 import { ProfileButton, TabScreen } from '@/components/Screen';
 import { TaskRow } from '@/features/plan/TaskRow';
+import { HomeRewardCard } from '@/features/rewards/HomeRewardCard';
 import { Button, Dot, Empty, Panel, PanelLink, Press, Row, SectionHead, Txt } from '@/components/ui';
 import { flowerData, useLifeBalance, useLive } from '@/hooks/useData';
 import { addDays, dateKey, hhmm, monthKey, parseDate, startOfDay, startOfWeek } from '@/lib/dates';
@@ -152,6 +153,9 @@ export default function Home() {
           </View>
         )}
       </PanelLink>
+
+      {/* Reward being earned */}
+      <HomeRewardCard />
 
       {/* Priorities */}
       <View style={{ gap: space.m }}>

@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { dateKey, nowISO, todayKey } from '@/lib/dates';
 import { uid } from '@/lib/id';
+import { DEFAULT_REWARD_SETTINGS } from '@/lib/domain/rewards';
 import { nextDue } from '@/lib/recurrence';
 import type {
   AssistantConversation,
@@ -25,6 +26,8 @@ import type {
   OutboxItem,
   PersonalGoal,
   Recipe,
+  Reward,
+  RewardEntry,
   Subscription,
   SyncTable,
   Task,
@@ -54,6 +57,8 @@ export interface Collections {
   workout_logs: WorkoutLog[];
   recipes: Recipe[];
   diets: DietPlan[];
+  rewards: Reward[];
+  reward_entries: RewardEntry[];
 }
 
 type ItemOf<K extends SyncTable> = Collections[K][number];
@@ -90,6 +95,12 @@ export interface State extends Collections {
   contribute: (goalId: string, amount: number, date?: string) => void;
   toggleMeal: (dietId: string, day: string, meal: MealType) => void;
   setActiveDiet: (dietId: string) => void;
+
+  /** Starts counting credit from today (first reward). */
+  startRewards: () => void;
+  redeemReward: (id: string, recordExpense: boolean) => void;
+  unredeemReward: (id: string) => void;
+  moveRewardFirst: (id: string) => void;
 
   setRating: (key: DimensionKey, value: number | null) => void;
   setDimension: (key: DimensionKey, patch: Partial<LifeBalanceDimension>) => void;
@@ -130,6 +141,7 @@ const defaultPrefs: UserPreferences = {
     },
   },
   onboarded: false,
+  rewards: DEFAULT_REWARD_SETTINGS,
 };
 
 const emptyCollections = (): Collections => ({
@@ -148,6 +160,8 @@ const emptyCollections = (): Collections => ({
   workout_logs: [],
   recipes: [],
   diets: [],
+  rewards: [],
+  reward_entries: [],
 });
 
 const initialData = () => ({
@@ -183,6 +197,11 @@ export const useStore = create<State>()(
             ...s.prefs,
             ...p,
             notifications: { ...s.prefs.notifications, ...(p.notifications ?? {}) },
+            rewards: {
+              ...s.prefs.rewards,
+              ...(p.rewards ?? {}),
+              values: { ...s.prefs.rewards.values, ...(p.rewards?.values ?? {}) },
+            },
             assistant: {
               ...s.prefs.assistant,
               ...(p.assistant ?? {}),
@@ -295,6 +314,45 @@ export const useStore = create<State>()(
           if (!d.deletedAt && d.active !== (d.id === dietId)) get().update('diets', d.id, { active: d.id === dietId });
       },
 
+      startRewards: () => {
+        if (!get().prefs.rewards.since) get().setPrefs({ rewards: { ...get().prefs.rewards, since: todayKey() } });
+      },
+
+      redeemReward: (id, recordExpense) => {
+        const r = get().rewards.find((x) => x.id === id);
+        if (!r || r.status === 'redeemed') return;
+        const today = todayKey();
+        get().create('reward_entries', { key: `redeem:${r.id}`, source: 'redeem', date: today, amount: -r.price, label: r.name });
+        const tx = recordExpense
+          ? get().create('transactions', { amount: r.price, type: 'expense', category: 'shopping', date: today, description: r.name })
+          : null;
+        get().update('rewards', id, { status: 'redeemed', redeemedAt: nowISO(), transactionId: tx?.id ?? null });
+      },
+
+      unredeemReward: (id) => {
+        const r = get().rewards.find((x) => x.id === id);
+        if (!r || r.status !== 'redeemed') return;
+        for (const e of get().reward_entries) if (!e.deletedAt && e.key === `redeem:${r.id}`) get().remove('reward_entries', e.id);
+        if (r.transactionId) get().remove('transactions', r.transactionId);
+        const first = Math.min(
+          0,
+          ...live(get().rewards)
+            .filter((x) => x.status === 'active')
+            .map((x) => x.order),
+        );
+        get().update('rewards', id, { status: 'active', redeemedAt: null, transactionId: null, order: first - 1 });
+      },
+
+      moveRewardFirst: (id) => {
+        const first = Math.min(
+          0,
+          ...live(get().rewards)
+            .filter((x) => x.status === 'active')
+            .map((x) => x.order),
+        );
+        get().update('rewards', id, { order: first - 1 });
+      },
+
       setRating: (key, value) =>
         set((s) => ({
           scores: s.scores.map((sc) => (sc.key === key ? { ...sc, self: value, ratedAt: value == null ? null : nowISO() } : sc)),
@@ -322,7 +380,7 @@ export const useStore = create<State>()(
     }),
     {
       name: 'morrow-v1',
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const st = (persisted ?? {}) as Partial<State>;
         if (version < 2) {
@@ -332,6 +390,11 @@ export const useStore = create<State>()(
           st.diets = st.diets ?? [];
           if (st.prefs)
             st.prefs = { ...st.prefs, assistant: { ...st.prefs.assistant, modules: { ...st.prefs.assistant.modules, health: true } } };
+        }
+        if (version < 3) {
+          st.rewards = st.rewards ?? [];
+          st.reward_entries = st.reward_entries ?? [];
+          if (st.prefs) st.prefs = { ...st.prefs, rewards: st.prefs.rewards ?? DEFAULT_REWARD_SETTINGS };
         }
         return st as State;
       },

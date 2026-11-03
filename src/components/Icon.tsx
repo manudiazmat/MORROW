@@ -51,6 +51,14 @@ const paths: Record<string, string[]> = {
   history: ['M4.5 12a7.5 7.5 0 1 0 2.2-5.3', 'M4.5 4.5v3.7h3.7', 'M12 8.5V12l2.5 1.5'],
   lock: ['M6.5 11h11v8.5h-11z', 'M8.5 11V8.5a3.5 3.5 0 0 1 7 0V11'],
   flag: ['M6 20V4.5', 'M6 5h11l-2.2 3.5L17 12H6'],
+  gift: [
+    'M4.5 9.5h15v3h-15z',
+    'M6 12.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-6.5',
+    'M12 9.5V20',
+    'M12 9.5C10.2 9.5 8 8.6 8 6.9A1.9 1.9 0 0 1 9.9 5c1.4 0 2.1 1.9 2.1 4.5Z',
+    'M12 9.5c1.8 0 4-.9 4-2.6A1.9 1.9 0 0 0 14.1 5C12.7 5 12 6.9 12 9.5Z',
+  ],
+  link: ['M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1', 'M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1'],
   list: ['M9 7h10', 'M9 12h10', 'M9 17h10', 'M5 7h.01', 'M5 12h.01', 'M5 17h.01'],
   coin: [
     'M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z',
@@ -100,10 +108,6 @@ export function Icon({ name, size = 20, color, stroke = 1.5 }: { name: IconName;
   );
 }
 
-/**
- * The MORROW symbol: one day split in two — today (the solid upper half) over tomorrow
- * (the lower half, still open, in ink outline). Works alone, at 16px and at app-icon size.
- */
 /** The app symbol: the double-arch "m" from the app icon. `size` is its width; it sits in a square box so it lines up with icons. */
 export function Mark({ size = 24, color }: { size?: number; color: string }) {
   const { x, y, w, h, d } = SYMBOL;

@@ -8,7 +8,7 @@ import { Button, Check, Chip, ChipRow, Empty, Field, IconButton, Panel, Press, R
 import { Disclosure } from '@/features/pickers';
 import { useLive } from '@/hooks/useData';
 import { addDays, dateKey, startOfDay, todayKey } from '@/lib/dates';
-import { dayInitial } from '@/lib/format';
+import { dayInitial, money } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { useStore } from '@/store';
 import { useUI } from '@/store/ui';
@@ -183,6 +183,9 @@ function HabitRow({ h }: { h: Habit }) {
   const expectedToday = h.days.includes(today.getDay());
   const doneToday = h.log.includes(dateKey(today));
   const s = streak(h);
+  const rewards = useStore((st) => st.prefs.rewards);
+  const currency = useStore((st) => st.prefs.currency);
+  const worth = rewards.since ? (h.value ?? rewards.values.habit) : 0;
   return (
     <Press
       onPress={() => router.push(`/edit/habit?id=${h.id}`)}
@@ -226,6 +229,11 @@ function HabitRow({ h }: { h: Habit }) {
           {s > 1 && (
             <Txt v="meta" muted style={{ marginLeft: 6 }}>
               {t('plan.streak', { n: s })}
+            </Txt>
+          )}
+          {worth > 0 && (
+            <Txt v="meta" num color={doneToday ? p.accent : p.muted} style={{ marginLeft: 'auto' }}>
+              {t('plan.worth', { amount: money(worth, currency, lang) })}
             </Txt>
           )}
         </Row>

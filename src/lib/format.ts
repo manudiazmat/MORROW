@@ -22,7 +22,7 @@ const DAYS_ABBR: Record<Language, string[]> = {
   en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 };
 
-const SYMBOL: Record<Currency, string> = { EUR: '€', USD: '$', GBP: '£', MXN: '$' };
+export const CURRENCY_SYMBOL: Record<Currency, string> = { EUR: '€', USD: '$', GBP: '£', MXN: '$' };
 
 export const monthName = (lang: Language, m: number) => MONTHS[lang][m];
 export const monthShort = (lang: Language, m: number) => MONTHS_SHORT[lang][m];
@@ -46,7 +46,7 @@ export function money(cents: number, currency: Currency, lang: Language, opts: {
   // Spanish convention: no thousands separator for 4-digit numbers
   const grouped = lang === 'es' && int.length <= 4 ? int : groupThousands(int, thou);
   const num = showDec ? `${grouped}${decSep}${dec}` : grouped;
-  const sym = SYMBOL[currency];
+  const sym = CURRENCY_SYMBOL[currency];
   const signStr = neg ? '−' : opts.sign ? '+' : '';
   return lang === 'es' ? `${signStr}${num} ${sym}` : `${signStr}${sym}${num}`;
 }

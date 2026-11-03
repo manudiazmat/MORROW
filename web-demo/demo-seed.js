@@ -7,7 +7,7 @@
     var stored = localStorage.getItem(KEY);
     if (demo === 'off') return;
     // keep the visitor's data, unless it is still an older example set (refresh it with the new sections)
-    if (stored && !(demo === 'on' && (JSON.parse(stored).version || 1) < 2)) return;
+    if (stored && !(demo === 'on' && (JSON.parse(stored).version || 1) < 3)) return;
   } catch (e) {
     return;
   }
@@ -69,7 +69,27 @@
   ];
   var seedR = 7;
   var rnd = function () { seedR = (seedR * 9301 + 49297) % 233280; return seedR / 233280; };
-  var habit = function (title, slot, dimension, rate) { var log = []; for (var i = 1; i < 40; i++) if (rnd() < rate) log.push(dk(-i)); return E({ title: title, slot: slot, dimension: dimension, days: [0, 1, 2, 3, 4, 5, 6], log: log }); };
+  var ALL = [0, 1, 2, 3, 4, 5, 6], WK = [1, 2, 3, 4, 5];
+  var habit = function (title, slot, dimension, rate, value, key, days, doneToday) {
+    var log = []; days = days || ALL;
+    for (var i = 1; i < 40; i++) { var d = new Date(today); d.setDate(d.getDate() - i); if (days.indexOf(d.getDay()) >= 0 && rnd() < rate) log.push(dk(-i)); }
+    if (doneToday) log.push(dk(0));
+    return E({ title: title, slot: slot, dimension: dimension, days: days, log: log, value: value, presetKey: key });
+  };
+  var habits = [
+    habit('Hacer la cama', 'morning', 'home', 0.85, 50, 'bed', ALL, true),
+    habit('Planificar el día', 'morning', 'career', 0.7, 75, 'plan', WK, true),
+    habit('Beber 2 litros de agua', 'anytime', 'health', 0.75, 75, 'water', ALL, false),
+    habit('Caminar 30 minutos', 'anytime', 'health', 0.6, 150, 'walk', ALL, false),
+    habit('1 hora de trabajo o estudio sin móvil', 'anytime', 'career', 0.65, 200, 'focus', WK, false),
+    habit('Fregar y recoger la cocina', 'evening', 'home', 0.7, 100, 'dishes', ALL, false),
+    habit('Leer 20 minutos', 'evening', 'growth', 0.6, 100, 'read', ALL, false),
+    habit('Acostarse antes de las 23:30', 'evening', 'health', 0.55, 100, 'sleep', ALL, false),
+  ];
+  var rewards = [
+    E({ name: 'Zapatillas para correr', price: 12000, image: null, url: null, notes: 'Para la 10K.', order: 0, status: 'active', redeemedAt: null, transactionId: null }),
+    E({ name: 'Auriculares inalámbricos', price: 18000, image: null, url: null, notes: '', order: 1, status: 'active', redeemedAt: null, transactionId: null }),
+  ];
   var keys = ['career', 'finance', 'health', 'relationships', 'growth', 'leisure', 'home', 'purpose'];
   var selfVals = [8, 7, 9, 10, 6, 5, 7, 8];
   var snap = function (back, vals) { return { month: mk(back), takenAt: mk(back) + '-28T10:00:00.000Z', values: Object.fromEntries(keys.map(function (k, i) { return [k, { self: vals[i], data: null, combined: vals[i] }]; })) }; };
@@ -100,10 +120,10 @@
 
   var state = {
     user: { id: null, email: null, mode: 'local' },
-    prefs: { name: '', language: 'es', currency: 'EUR', dateFormat: 'dmy', weekStartsOn: 1, units: 'metric', theme: 'system', dayStartHour: 8, dayEndHour: 22, weeklySportTarget: 3, notifications: { reminders: true, weeklyReview: true, insights: true }, assistant: { consent: false, modules: { calendar: true, tasks: true, goals: true, finance: true, habits: true, lifeBalance: true, reviews: true, health: true } }, onboarded: true },
+    prefs: { name: '', language: 'es', currency: 'EUR', dateFormat: 'dmy', weekStartsOn: 1, units: 'metric', theme: 'system', dayStartHour: 8, dayEndHour: 22, weeklySportTarget: 3, notifications: { reminders: true, weeklyReview: true, insights: true }, assistant: { consent: false, modules: { calendar: true, tasks: true, goals: true, finance: true, habits: true, lifeBalance: true, reviews: true, health: true } }, onboarded: true, rewards: { since: dk(-9), values: { habit: 50, task: 100, taskHigh: 200, workout: 300, meal: 25, review: 300, bonus: 150 } } },
     finance: { openingBalance: 120000 },
     tasks: tasks, events: events,
-    habits: [habit('Meditar 10 minutos', 'morning', 'health', 0.7), habit('Leer 20 páginas', 'evening', 'growth', 0.6), habit('Ordenar la casa', 'anytime', 'home', 0.5)],
+    habits: habits, rewards: rewards, reward_entries: [],
     leisure_items: [E({ title: 'Escapada a Lisboa', kind: 'trip', date: dk(33), done: false }), E({ title: 'Museo Sorolla', kind: 'place', date: null, done: false }), E({ title: 'Clase de cerámica', kind: 'experience', date: null, done: true })],
     ideas: [E({ text: 'App para compartir los gastos del piso' })],
     transactions: tx,
@@ -117,7 +137,7 @@
     reviews: [], messages: [], outbox: [], lastPulledAt: null,
   };
   try {
-    localStorage.setItem(KEY, JSON.stringify({ state: state, version: 2 }));
+    localStorage.setItem(KEY, JSON.stringify({ state: state, version: 3 }));
     localStorage.setItem('morrow-demo', 'on');
   } catch (e) {}
 })();

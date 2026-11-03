@@ -31,11 +31,13 @@ const TABLES: SyncTable[] = [
   'routines',
   'workout_logs',
   'diets',
+  'rewards',
+  'reward_entries',
 ];
 
 const snake = (s: string) => s.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 const camel = (s: string) => s.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
-const TS_FIELDS = new Set(['createdAt', 'updatedAt', 'deletedAt', 'completedAt']);
+const TS_FIELDS = new Set(['createdAt', 'updatedAt', 'deletedAt', 'completedAt', 'redeemedAt']);
 
 export function toRow(e: Entity, userId: string): Record<string, unknown> {
   const row: Record<string, unknown> = { user_id: userId };

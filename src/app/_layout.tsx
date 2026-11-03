@@ -8,6 +8,7 @@ import { Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { QuickAdd } from '@/features/QuickAdd';
+import { RewardsKeeper } from '@/features/rewards/RewardsKeeper';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Toast } from '@/components/Toast';
 import { useLifeBalance } from '@/hooks/useData';
@@ -112,6 +113,7 @@ export default function RootLayout() {
       <Toast />
       <ConfirmDialog />
       <SnapshotKeeper />
+      <RewardsKeeper />
       <AuthBridge />
     </SafeAreaProvider>
   );

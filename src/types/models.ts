@@ -35,6 +35,7 @@ export interface UserPreferences {
     modules: Record<AssistantModule, boolean>;
   };
   onboarded: boolean;
+  rewards: RewardSettings;
 }
 
 export type AssistantModule = 'calendar' | 'tasks' | 'goals' | 'finance' | 'habits' | 'lifeBalance' | 'reviews' | 'health';
@@ -96,6 +97,10 @@ export interface Habit extends Entity {
   dimension: DimensionKey;
   days: number[]; // weekdays 0-6 when expected
   log: string[]; // YYYY-MM-DD done
+  /** what one check earns towards rewards, in cents; null/undefined uses the default habit value, 0 earns nothing */
+  value?: number | null;
+  /** set when the habit came from the catalogue of everyday tasks */
+  presetKey?: string | null;
 }
 
 export type LeisureKind = 'weekend' | 'activity' | 'place' | 'trip' | 'experience';
@@ -371,6 +376,43 @@ export interface DietPlan extends Entity {
   log: string[];
 }
 
+/** Rewards: something the person wants to buy, earned with what they get done. Credit is not real money. */
+export type RewardStatus = 'active' | 'redeemed';
+
+export interface Reward extends Entity {
+  name: string;
+  price: number; // cents
+  image?: string | null;
+  url?: string | null;
+  notes?: string;
+  /** queue position: credit fills the lowest first */
+  order: number;
+  status: RewardStatus;
+  redeemedAt?: string | null;
+  /** expense recorded in Finance when it was redeemed, if the person chose to */
+  transactionId?: ID | null;
+}
+
+export type EarnSource = 'habit' | 'task' | 'workout' | 'meal' | 'review' | 'bonus' | 'redeem';
+export type RewardValueKey = Exclude<EarnSource, 'redeem'> | 'taskHigh';
+
+/** One line of the rewards ledger. Earnings are reconciled from what was done; redemptions are negative. */
+export interface RewardEntry extends Entity {
+  /** what produced it, e.g. "habit:<id>:2026-11-03", "task:<id>", "redeem:<rewardId>" */
+  key: string;
+  source: EarnSource;
+  date: string; // YYYY-MM-DD
+  amount: number; // cents, value at the moment it was earned
+  label: string;
+}
+
+export interface RewardSettings {
+  /** first day that counts (set when the first reward is created); nothing earlier earns credit */
+  since: string | null;
+  /** cents per item; 0 switches a source off */
+  values: Record<RewardValueKey, number>;
+}
+
 /** Sync outbox */
 export type SyncTable =
   | 'tasks'
@@ -387,7 +429,9 @@ export type SyncTable =
   | 'routines'
   | 'workout_logs'
   | 'recipes'
-  | 'diets';
+  | 'diets'
+  | 'rewards'
+  | 'reward_entries';
 
 export interface OutboxItem {
   table: SyncTable;

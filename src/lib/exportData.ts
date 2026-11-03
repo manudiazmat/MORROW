@@ -9,7 +9,7 @@ import { dateKey } from './dates';
 export function buildExport() {
   const s = useStore.getState();
   return {
-    app: 'MORROW',
+    app: 'morrow',
     version: 1,
     exportedAt: new Date().toISOString(),
     prefs: s.prefs,
@@ -24,6 +24,7 @@ export function buildExport() {
     subscriptions: s.subscriptions,
     financial_goals: s.financial_goals,
     personal_goals: s.personal_goals,
+    rewards: { rewards: s.rewards, ledger: s.reward_entries },
     health: { routines: s.routines, workout_logs: s.workout_logs, recipes: s.recipes, diets: s.diets },
     life_balance: { dimensions: s.dimensions, scores: s.scores, snapshots: s.snapshots },
     weekly_reviews: s.reviews,

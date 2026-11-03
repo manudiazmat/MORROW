@@ -5,7 +5,7 @@ import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanim
 import { Check, Chip, Field, IconButton, Row, Segmented, Toggle, Txt } from '@/components/ui';
 import { useLive } from '@/hooks/useData';
 import { parseDateTime, timeOf, todayKey, withTime } from '@/lib/dates';
-import { dayInitial } from '@/lib/format';
+import { dayInitial, money, parseAmount } from '@/lib/format';
 import { uid } from '@/lib/id';
 import { useT } from '@/lib/i18n';
 import { ensurePermission, rescheduleReminders } from '@/lib/notifications';
@@ -374,10 +374,21 @@ export function HabitEditor({ id }: { id?: string }) {
   const [dimension, setDimension] = useState<DimensionKey>(existing?.dimension ?? 'health');
   const [days, setDays] = useState<number[]>(existing?.days ?? [0, 1, 2, 3, 4, 5, 6]);
   const [error, setError] = useState<string | null>(null);
+  const rewards = useStore((s) => s.prefs.rewards);
+  const currency = useStore((s) => s.prefs.currency);
+  const [value, setValue] = useState(
+    existing?.value == null ? '' : lang === 'es' ? (existing.value / 100).toFixed(2).replace('.', ',') : (existing.value / 100).toFixed(2),
+  );
+  const [valueError, setValueError] = useState<string | null>(null);
 
   const save = () => {
     if (!title.trim()) {
       setError(t('c.required'));
+      return false;
+    }
+    const cents = value.trim() === '' ? null : parseAmount(value);
+    if (value.trim() !== '' && (cents == null || cents < 0)) {
+      setValueError(t('c.invalidAmount'));
       return false;
     }
     const data: Omit<Habit, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'> = {
@@ -386,6 +397,8 @@ export function HabitEditor({ id }: { id?: string }) {
       dimension,
       days,
       log: existing?.log ?? [],
+      value: cents,
+      presetKey: existing?.presetKey ?? null,
     };
     if (existing) update('habits', existing.id, data);
     else create('habits', data);
@@ -430,6 +443,20 @@ export function HabitEditor({ id }: { id?: string }) {
         onChange={setDimension}
         options={DIMS.map((d) => ({ value: d, label: t(`dims.${d}`) }))}
       />
+      {rewards.since && (
+        <Field
+          label={t('ed.rewardValue')}
+          value={value}
+          onChangeText={(v) => {
+            setValue(v);
+            setValueError(null);
+          }}
+          keyboardType="decimal-pad"
+          placeholder={money(rewards.values.habit, currency, lang, { decimals: true })}
+          hint={t('ed.rewardValueHint', { amount: money(rewards.values.habit, currency, lang, { decimals: true }) })}
+          error={valueError}
+        />
+      )}
     </EditorScaffold>
   );
 }

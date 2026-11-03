@@ -34,6 +34,15 @@ La app funciona entera sin servicios externos: los datos viven en el dispositivo
 - **Recetas** con foto, ingredientes que se escalan por raciones, pasos y valores nutricionales opcionales.
 - Las imágenes se guardan en el dispositivo (en web, comprimidas en el navegador). Sincronizarlas necesitará Supabase Storage.
 
+## Recompensas
+
+- Eliges algo que quieres comprarte (nombre, precio, foto y enlace opcionales). Vive en **Objetivos → Recompensas** y en una tarjeta de Inicio.
+- Lo que haces genera **crédito** que se resta de su precio: tareas diarias (hábitos con valor), tareas del Plan, entrenos, comidas de la dieta, revisión semanal y un extra por completar todas las del día. Cada valor se ajusta en _Tareas y valores_.
+- Catálogo de tareas básicas del día a día (casa, salud, mente, trabajo, dinero, personas) para añadir con un toque.
+- Si hay varias recompensas, el crédito llena la primera de la cola antes de pasar a la siguiente. Al llegar a cero se **canjea**, y opcionalmente se apunta la compra como gasto en Finanzas.
+- Funciona como un libro de movimientos (`reward_entries`) que se concilia con lo hecho: solo cuenta desde la primera recompensa, desmarcar algo resta, y cambiar un valor no altera lo ya ganado. Lógica en `src/lib/domain/rewards.ts`, con pruebas.
+- El crédito no es dinero real.
+
 ## Configurar Supabase
 
 1. Crea un proyecto en supabase.com y copia `.env.example` a `.env` con la URL y la _anon key_.
